@@ -4,7 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon ./index.js",
+    "dbcreate": "npx sequelize db:create",
+    "dbdrop": "npx sequelize db:drop",
+    "miga": "npx sequelize db:migrate",
+    "migu": "npx sequelize db:migrate:undo:all",
+    "seeda": "npx sequelize db:seed:all",
+    "seedu": "npx sequelize db:seed:undo:all"
   },
   "keywords": [],
   "author": "Ragy4a",

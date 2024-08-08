@@ -1,0 +1,11 @@
+[
+  "20240808211100-create-country.js",
+  "20240808211102-create-location.js",
+  "20240808211208-create-actor.js",
+  "20240808211957-create-directors.js",
+  "20240808212251-create-studio.js",
+  "20240808212424-create-genre.js",
+  "20240808212719-create-movie.js",
+  "20240808212852-create-movies-actors.js",
+  "20240808212959-create-movies-directors.js"
+]
