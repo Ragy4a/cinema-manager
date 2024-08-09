@@ -9,6 +9,8 @@ module.exports = {
           model: 'movies',
           key: 'id'
         },
+        onDelete: 'CASCADE',
+        primaryKey: true,
         allowNull: false,
       },
       actor_id: {
@@ -17,7 +19,9 @@ module.exports = {
           model: 'actors',
           key: 'id',
         },
+        onDelete: 'CASCADE',
         allowNull: false,
+        primaryKey: true,
       }
     });
   },

@@ -27,7 +27,10 @@ class GenreController {
                 returning: true,
                 raw: true,
             });
-
+            if(!newGenre) {
+                await t.rollback();
+                return next(createError(404, 'Genre not found!'))
+            }
             await t.commit();
             res.status(201).json(newGenre);
         } catch (error) {
@@ -40,8 +43,8 @@ class GenreController {
     updateGenre = async (req, res, next) => {
         const t = await sequelize.transaction();
         try {
-            const { id, title } = req.body;
-            const [affectedRows, [updatedGenre]] = await Genre.update({ title }, {
+            const { id } = req.body;
+            const [affectedRows, [updatedGenre]] = await Genre.update(req.body, {
                 where: { id },
                 transaction: t,
                 returning: true,

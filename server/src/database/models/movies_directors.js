@@ -11,14 +11,26 @@ module.exports = (sequelize, DataTypes) => {
     movie_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: 'movies',
+        key: 'id',
+      },
+      onDelete: 'CASCADE',
+      primaryKey: true,
     },
     director_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: 'directors',
+        key: 'id',
+      },
+      onDelete: 'CASCADE',
+      primaryKey: true,
     },
   }, {
     sequelize,
-    modelName: 'MoviesDirector',
+    modelName: 'MoviesDirectors',
     underscored: true,
     timestamps: false,
   });

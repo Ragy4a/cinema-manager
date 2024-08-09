@@ -1,0 +1,15 @@
+GET http://localhost:5000/api/movies-directors
+
+###
+
+POST http://localhost:5000/api/movies-directors
+Content-Type: application/json
+
+{
+    "movie_id": 1,
+    "director_id": 1
+}
+
+###
+
+DELETE http://localhost:5000/api/movies-directors/1/1

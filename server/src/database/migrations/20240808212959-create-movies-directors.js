@@ -5,19 +5,23 @@ module.exports = {
     await queryInterface.createTable('movies_directors', {
       movie_id: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         references: {
           model: 'movies',
-          key: 'id'
+          key: 'id',
         },
-        allowNull: false
+        onDelete: 'CASCADE',
+        primaryKey: true,
       },
       director_id: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         references: {
           model: 'directors',
-          key: 'id'
+          key: 'id',
         },
-        allowNull: false,
+        onDelete: 'CASCADE',
+        primaryKey: true,
       }
     });
   },

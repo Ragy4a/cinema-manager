@@ -9,6 +9,7 @@ const genreRouter = require('./genreRoutes');
 const studioRouter = require('./studioRouters');
 const movieRouter = require('./movieRouters');
 const movieActorRouter = require('./movieActorRoutes');
+const movieDirectorRouter = require('./movieDirectorRoutes');
 
 router.use('/countries', countryRouter);
 router.use('/locations', locationRouter);
@@ -18,5 +19,6 @@ router.use('/genres', genreRouter);
 router.use('/studios', studioRouter);
 router.use('/movies', movieRouter);
 router.use('/movies-actors', movieActorRouter);
+router.use('/movies-directors', movieDirectorRouter);
 
 module.exports = router;

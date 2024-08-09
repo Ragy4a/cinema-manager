@@ -9,7 +9,7 @@ Content-Type: application/json
     "first_name": "Alex",
     "second_name": "Dafne",
     "birth_date": "2000-01-01",
-    "birth_place": "Los Angeles"
+    "birth_place": "Ohio"
 }
 
 ###

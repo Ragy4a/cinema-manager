@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const router = Router();
 
-const movieActorController = require('../controllers/movieActorController');
+const moviesActorsController = require('../controllers/movieActorController');
 
 const {
     validation: { validateMovieActor }
@@ -9,11 +9,11 @@ const {
 
 router
     .route('/')
-        .get(validateMovieActor, movieActorController.getAllMovieActors)
-        .post(validateMovieActor, movieActorController.createMovieActor);
+        .get(validateMovieActor, moviesActorsController.getAllMoviesActors)
+        .post(validateMovieActor, moviesActorsController.createMovieActor);
 
 router
     .route('/:movie_id-:actor_id')
-        .delete(movieActorController.deleteMovieActor);
+        .delete(moviesActorsController.deleteMovieActor);
 
 module.exports = router;
