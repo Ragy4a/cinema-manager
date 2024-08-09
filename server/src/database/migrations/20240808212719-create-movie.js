@@ -10,19 +10,32 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       title: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
       },
       release_year: {
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        allowNull: false,
       },
       genre_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'genres',
+          key: 'id'
+        },
+        allowNull: false
       },
       studio_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'studios',
+          key: 'id'
+        },
+        allowNull: false
       },
       poster: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: true,
       }
     });
   },

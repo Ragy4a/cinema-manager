@@ -1,28 +1,53 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class actor extends Model {
+  class Actor extends Model {
     static associate(models) {
+      Actor.belongsTo(models.Location, {
+        foreignKey: 'birth_place',
+        as: 'birthActorLocation'
+      })
+      Actor.belongsTo(models.Location, {
+        foreignKey: 'death_place',
+        as: 'deathActorLocation'
+      })
+      Actor.belongsToMany(models.Movie, { through: 'movies_actors' })
     }
   }
-  actor.init({
+  Actor.init({
     first_name: {
       type: DataTypes.STRING,
-
+      allowNull: false
     },
-    second_name: DataTypes.STRING,
-    birth_date: DataTypes.DATE,
-    birth_place: DataTypes.INTEGER,
-    death_year: DataTypes.DATE,
-    death_place: DataTypes.INTEGER,
-    photo: DataTypes.STRING
+    second_name: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    birth_date: {
+      type: DataTypes.DATE,
+      allowNull: false
+    },
+    birth_place: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    death_year: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
+    death_place: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    photo: {
+      type: DataTypes.STRING,
+      allowNull: true
+    }
   }, {
     sequelize,
     modelName: 'Actor',
     underscored: true,
     timestamps: false
   });
-  return actor;
+  return Actor;
 };

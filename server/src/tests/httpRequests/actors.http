@@ -1,0 +1,30 @@
+GET http://localhost:5000/api/actors
+
+###
+
+POST http://localhost:5000/api/actors
+Content-Type: application/json
+
+{
+    "first_name": "Alex",
+    "second_name": "Dafne",
+    "birth_date": "2000-01-01",
+    "birth_place": "Los Angeles"
+}
+
+###
+
+PUT http://localhost:5000/api/actors
+Content-Type: application/json
+
+{
+    "id": 1,
+    "first_name": "John",
+    "second_name": "Doe",
+    "birth_date": "2000-06-09",
+    "birth_place": "USA"
+}
+
+###
+
+DELETE http://localhost:5000/api/actors/1

@@ -1,26 +1,47 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class location extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
+  class Location extends Model {
     static associate(models) {
-      // define association here
+      Location.belongsTo(models.Country, { foreignKey: 'country_id' });
+      Location.hasMany(models.Actor, {
+        foreignKey: 'birth_place', 
+        as: 'birthActorPlace'
+      });
+      Location.hasMany(models.Actor, {
+        foreignKey: 'death_place', 
+        as: 'deathActorPlace'
+      });
+      Location.hasMany(models.Director, {
+        foreignKey: 'birth_place',
+        as: 'birthDirectorLocation',
+      })
+      Location.hasMany(models.Director, {
+        foreignKey: 'death_place',
+        as: 'deathDirectorLocation',
+      })
+      Location.hasMany(models.Studio, { foreignKey: 'location_id' })
     }
   }
-  location.init({
-    title: DataTypes.STRING,
-    country_id: DataTypes.INTEGER
+  Location.init({
+    title: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    country_id: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'Country',
+        key: 'id'
+      },
+      allowNull: false
+    }
   }, {
     sequelize,
     modelName: 'Location',
     underscored: true,
     timestamps: false
   });
-  return location;
+  return Location;
 };

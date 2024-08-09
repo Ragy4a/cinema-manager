@@ -1,0 +1,32 @@
+GET http://localhost:5000/api/directors
+
+###
+
+POST http://localhost:5000/api/directors
+Content-Type: application/json
+
+{
+    "first_name": "Steven",
+    "second_name": "Spielberg",
+    "birth_date": "1946-12-18",
+    "birth_place": "Ohio"
+}
+
+###
+
+PUT http://localhost:5000/api/directors
+Content-Type: application/json
+
+{
+    "id": 1,
+    "first_name": "Steven",
+    "second_name": "Spielberg",
+    "birth_date": "1946-12-18",
+    "birth_place": "Cincinnati",
+    "death_place": null,
+    "death_year": null
+}
+
+
+###
+DELETE http://localhost:5000/api/directors/1

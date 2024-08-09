@@ -1,0 +1,26 @@
+GET http://localhost:5000/api/countries
+
+###
+
+POST http://localhost:5000/api/countries
+Content-Type: application/json
+
+{
+    "title": "United States Of America",
+    "abbreviation": "USA"
+}
+
+###
+
+PUT http://localhost:5000/api/countries
+Content-Type: application/json
+
+{
+    "id": 1,
+    "title": "United States Of America",
+    "abbreviation": "USA"
+}
+
+###
+
+DELETE http://localhost:5000/api/countries/1
