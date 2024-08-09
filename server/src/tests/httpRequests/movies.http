@@ -1,0 +1,29 @@
+GET http://localhost:5000/api/movies
+
+###
+
+POST http://localhost:5000/api/movies
+Content-Type: application/json
+
+{
+    "title": "Inception",
+    "release_year": "2010-07-16",
+    "genre": "Fantazy",
+    "studio": "Warner Bros."
+}
+
+###
+PUT http://localhost:5000/api/movies
+Content-Type: application/json
+
+{
+    "id": 1,
+    "title": "Inception",
+    "release_year": "2010-07-16",
+    "genre_id": 1,
+    "studio_id": 1
+}
+
+###
+
+DELETE http://localhost:5000/api/movies/1

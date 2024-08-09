@@ -1,0 +1,28 @@
+GET http://localhost:5000/api/studios
+
+###
+
+POST http://localhost:5000/api/studios
+Content-Type: application/json
+
+{
+    "title": "Warner Bros.",
+    "found_year": "1923-04-04",
+    "location": "Ohio"
+}
+
+###
+
+PUT http://localhost:5000/api/studios
+Content-Type: application/json
+
+{
+    "id": 1,
+    "title": "Warner Bros.",
+    "found_year": "1923-04-04",
+    "location": "Ohio"
+}
+
+###
+
+DELETE http://localhost:5000/api/studios/1

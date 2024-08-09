@@ -1,0 +1,27 @@
+GET http://localhost:5000/api/genres
+
+###
+
+POST http://localhost:5000/api/genres
+Content-Type: application/json
+
+{
+    "title": "Science Fiction",
+    "description": "Science fiction, also often known as 'sci-fi', is a genre of literature that is imaginative and based around science. It relies heavily on scientific facts, theories, and principles as support for its settings, characters, themes, and plot."
+}
+
+###
+
+PUT http://localhost:5000/api/genres
+Content-Type: application/json
+
+{
+    "id": 1,
+    "title": "Fantazy",
+    "description": "Fantasy is characterized by imaginary and unrealistic elements. Fantasies typically involve supernatural powers, like magic and magical creatures. Fantasy stories often contain elements of Medievalism, such as castles, knights, kings, magical swords, and references to ancient spells."
+}
+
+
+###
+
+DELETE http://localhost:5000/api/genres/1
