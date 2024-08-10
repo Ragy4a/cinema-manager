@@ -1,14 +1,17 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Movie extends Model {
     static associate(models) {
-      Movie.belongsTo(models.Genre, { foreignKey: 'genre_id' })
-      Movie.belongsTo(models.Studio, { foreignKey: 'studio_id' })
-      Movie.belongsToMany(models.Actor, { through: 'movies_actors' })
-      Movie.belongsToMany(models.Director, { through: 'movies_directors' })
+      Movie.belongsTo(models.Genre, { foreignKey: 'genre_id' });
+      Movie.belongsTo(models.Studio, { foreignKey: 'studio_id' });
+      Movie.belongsToMany(models.Actor, { 
+        through: 'movies_actors', 
+        as: 'Actors'
+      });
+      Movie.belongsToMany(models.Director, { 
+        through: 'movies_directors' 
+      });
     }
   }
   Movie.init({

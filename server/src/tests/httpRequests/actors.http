@@ -2,6 +2,9 @@ GET http://localhost:5000/api/actors
 
 ###
 
+GET http://localhost:5000/api/actors/2
+
+###
 POST http://localhost:5000/api/actors
 Content-Type: application/json
 

@@ -1,32 +1,111 @@
 const createError = require('http-errors');
 const { Actor, Location, Movie, MoviesActors, sequelize } = require('../database/models');
+const { Op } = require('sequelize');
 
 class ActorController {
 
     getAllActors = async (req, res, next) => {
         try {
             const { limit, offset } = req.pagination;
-            const actors = await Actor.findAll({
-                attributes: ['id', 'first_name'],
+            const { search, filter } = req.query;
+            const whereClause = {};
+            if (search) {
+                whereClause[Op.or] = [
+                    { first_name: { [Op.iLike]: `%${search}%` } },
+                    { second_name: { [Op.iLike]: `%${search}%` } }
+                ];
+            }
+            let orderClause = [];
+            if (filter === 'oldest') {
+                orderClause.push(['birth_date', 'ASC']);
+            } else if (filter === 'youngest') {
+                orderClause.push(['birth_date', 'DESC']);
+            } else if (filter === 'most-movies') {
+                orderClause.push([sequelize.literal('"movies_count"'), 'DESC']);
+                // пробовал убирать sequelize.literal - но тут он нужен(честно)
+            }
+            const actors = await Actor.findAndCountAll({
+                where: whereClause,
+                attributes: {
+                    include: [
+                        [
+                            sequelize.fn('COUNT', sequelize.col('Movies.id')),
+                            'movies_count'
+                        ]
+                    ]
+                },
+                include: [
+                    {
+                        model: Movie,
+                        as: 'Movies',
+                        attributes: [],
+                        through: { attributes: [] }
+                    }
+                ],
                 limit,
+                subQuery: false,
                 offset,
-                raw: true,
+                group: ['Actor.id'],
+                order: orderClause.length ? orderClause : [['id', 'ASC']],
             });
-            if (!actors.length) {
+    
+            if (!actors.rows.length) {
                 return next(createError(404, 'Actors not found!'));
-            };
-            res.status(200).json(actors);
+            }
+    
+            res.status(200).json({
+                actors: actors.rows,
+                total: actors.count.length,
+            });
         } catch (error) {
             console.log(error.message);
             next(error);
         }
-    }
+    };
+    
+
+    getActorById = async (req, res, next) => {
+        try {
+            const { id } = req.params;
+            const actor = await Actor.findOne({
+                where: { id },
+                include: [
+                    {
+                        model: Location,
+                        as: 'birthActorLocation',
+                        attributes: ['title'],
+                    },
+                    {
+                        model: Location,
+                        as: 'deathActorLocation',
+                        attributes: ['title'],
+                    },
+                    {
+                        model: Movie,
+                        as: 'Movies',
+                        through: { attributes: [] },
+                        attributes: ['title'],
+                    }
+                ],
+                attributes: ['id', 'first_name', 'second_name', 'photo'],
+            });
+
+            if (!actor) {
+                return next(createError(404, 'Actor not found!'));
+            }
+
+            res.status(200).json(actor);
+        } catch (error) {
+            next(error);
+        }
+    };
 
     createActor = async (req, res, next) => {
         const t = await sequelize.transaction();
         try {
             const { first_name, second_name, birth_date, birth_place, death_place, death_year, movies } = req.body;
             const photo = req.file ? req.file.filename : null;
+
             const birthLocation = await Location.findOne({
                 where: { title: birth_place },
                 attributes: ['id'],
@@ -37,6 +116,7 @@ class ActorController {
                 await t.rollback();
                 return next(createError(404, 'Birth place location not found!'));
             }
+
             let deathLocation = null;
             if (death_place) {
                 const locationResult = await Location.findOne({
@@ -45,14 +125,13 @@ class ActorController {
                     transaction: t,
                     raw: true,
                 });
-
                 if (!locationResult) {
                     await t.rollback();
                     return next(createError(404, 'Death place location not found!'));
                 }
-
                 deathLocation = locationResult.id;
             }
+
             const newActor = await Actor.create({
                 first_name,
                 second_name,
@@ -65,41 +144,39 @@ class ActorController {
                 transaction: t,
                 returning: true,
             });
-            if (!newActor) {
-                await t.rollback();
-                return next(createError(404, 'Actor not created!'));
-            }
+
             if (movies && movies.length > 0) {
                 for (const title of movies) {
-                    let movie = await Movie.findOne({
+                    const movie = await Movie.findOne({
                         where: { title },
                         transaction: t,
                     });
                     if (!movie) {
                         await t.rollback();
                         return next(createError(404, 'Movie not found!'));
-                    };
+                    }
                     await MoviesActors.create({
                         movie_id: movie.id,
                         actor_id: newActor.id,
-                    }, { transaction: t })
+                    }, { transaction: t });
                 }
             }
+
             await t.commit();
             res.status(201).json(newActor);
         } catch (error) {
-            console.log(error.message);
             await t.rollback();
             next(error);
         }
-    }
+    };
 
     updateActor = async (req, res, next) => {
         const t = await sequelize.transaction();
         try {
             const { id, first_name, second_name, birth_date, birth_place, death_place, death_year, movies } = req.body;
             const photo = req.file ? req.file.filename : null;
-            const { id: birthLocation } = await Location.findOne({
+
+            const birthLocation = await Location.findOne({
                 where: { title: birth_place },
                 attributes: ['id'],
                 transaction: t,
@@ -109,25 +186,27 @@ class ActorController {
                 await t.rollback();
                 return next(createError(404, 'Birth place location not found!'));
             }
+
             let deathLocation = null;
             if (death_place) {
-                const { id } = await Location.findOne({
+                const locationResult = await Location.findOne({
                     where: { title: death_place },
                     attributes: ['id'],
                     transaction: t,
                     raw: true,
                 });
-                if (!id) {
+                if (!locationResult) {
                     await t.rollback();
                     return next(createError(404, 'Death place location not found!'));
                 }
-                deathLocation = id;
+                deathLocation = locationResult.id;
             }
+
             const [affectedRows, [updatedActor]] = await Actor.update({
                 first_name,
                 second_name,
                 birth_date,
-                birth_place: birthLocation,
+                birth_place: birthLocation.id,
                 death_place: deathLocation ?? null,
                 death_year,
                 photo
@@ -136,63 +215,68 @@ class ActorController {
                 transaction: t,
                 returning: true,
             });
+
             if (affectedRows === 0) {
                 await t.rollback();
                 return next(createError(404, 'Actor not found!'));
             }
-            if(movies && movies.length > 0) {
-                await MoviesActors.destroy({ 
+
+            if (movies && movies.length > 0) {
+                await MoviesActors.destroy({
                     where: { actor_id: id },
-                    transaction: t
+                    transaction: t,
                 });
                 for (const title of movies) {
-                    let movie = await Movie.findOne({
+                    const movie = await Movie.findOne({
                         where: { title },
-                        transaction: t
+                        transaction: t,
                     });
                     if (!movie) {
                         await t.rollback();
                         return next(createError(404, 'Movie not found!'));
-                    };
+                    }
                     await MoviesActors.create({
                         movie_id: movie.id,
                         actor_id: id,
-                    }, { transaction: t })
+                    }, { transaction: t });
                 }
             }
+
             await t.commit();
             res.status(200).json(updatedActor);
         } catch (error) {
-            console.log(error.message);
             await t.rollback();
             next(error);
         }
-    }
+    };
 
     deleteActor = async (req, res, next) => {
         const t = await sequelize.transaction();
         try {
             const { id } = req.params;
+
             await MoviesActors.destroy({
                 where: { actor_id: id },
                 transaction: t,
             });
+
             const deletedActor = await Actor.destroy({
                 where: { id },
                 transaction: t,
             });
-            if(!deletedActor) {
+
+            if (!deletedActor) {
                 await t.rollback();
-                return createError(404, 'Actor not found!');
-            };
+                return next(createError(404, 'Actor not found!'));
+            }
+
             await t.commit();
             res.status(204).send();
         } catch (error) {
-            console.log(error.message);
             await t.rollback();
             next(error);
         }
-    }
+    };
 
 }
 

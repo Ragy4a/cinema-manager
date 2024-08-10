@@ -11,7 +11,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'death_place',
         as: 'deathActorLocation'
       })
-      Actor.belongsToMany(models.Movie, { through: 'movies_actors' })
+      Actor.belongsToMany(models.Movie, { 
+        through: 'movies_actors', 
+        as: 'Movies'
+      });
     }
   }
   Actor.init({

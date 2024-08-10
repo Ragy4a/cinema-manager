@@ -1,7 +1,10 @@
 const { PAGINATION_SCHEMA } = require('../utils/validationSchemas');
 
 module.exports.paginateData = async (req, res, next) => {
-    const { page, result } = req.query; 
+    let { page = 1, result = 5 } = req.query;
+
+    page = parseInt(page);
+    result = parseInt(result);
 
     const defaultPagination = {
         limit: 5,
@@ -9,18 +12,19 @@ module.exports.paginateData = async (req, res, next) => {
     };
 
     const pagination = {
-        limit: result ?? 5,
-        offset: ((page - 1) * result) ?? 0,
+        limit: Number.isInteger(result) && result > 0 ? result : 5,
+        offset: Number.isInteger(page) && page > 0 ? (page - 1) * result : 0,
     };
+
     try {
         if (await PAGINATION_SCHEMA.isValid(pagination)) {
             req.pagination = pagination;
         } else {
             req.pagination = defaultPagination;
-        };
+        }
         next();
     } catch (error) {
         console.log(error.message);
-        next(error.message);
+        next(error);
     }
 };
