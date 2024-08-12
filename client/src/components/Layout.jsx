@@ -8,7 +8,7 @@ import Footer from './Footer/Footer';
 
 function Layout() {
   return (
-    <Box sx={{ width: '100%', height: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ width: '100%', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header />
       <Grid container sx={{ flex: 1 }}>
         <Grid item lg={2} md={2} xl={2} sm={3} xs={12}>

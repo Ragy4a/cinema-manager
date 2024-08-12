@@ -8,8 +8,8 @@ const initialState = {
     error: null,
 }
 
-export const getMovies = createAsyncThunk(
-    `${MOVIES_SLICE_NAME}/getMovies`,
+export const getAllMovies = createAsyncThunk(
+    `${MOVIES_SLICE_NAME}/getAllMovies`,
     async (_, { rejectWithValue }) => {
         try {
             const { status, data } = await api.get(`${MOVIES_SLICE_NAME}/`);
@@ -78,7 +78,7 @@ const moviesSlice = createSlice({
     initialState,
     extraReducers: (builder) => {
         builder
-            .addCase(getMovies.fulfilled, (state, { payload }) => {
+            .addCase(getAllMovies.fulfilled, (state, { payload }) => {
                 state.movies = payload;
                 state.status = 'fulfilled';
                 state.error = null;
@@ -104,12 +104,12 @@ const moviesSlice = createSlice({
                 state.status = 'fulfilled';
                 state.error = null;
             })
-            .addCase(getMovies.pending, setPending)
+            .addCase(getAllMovies.pending, setPending)
             .addCase(getMovieById.pending, setPending)
             .addCase(createMovie.pending, setPending)
             .addCase(editMovie.pending, setPending)
             .addCase(deleteMovie.pending, setPending)
-            .addCase(getMovies.rejected, setRejected)
+            .addCase(getAllMovies.rejected, setRejected)
             .addCase(getMovieById.rejected, setRejected)
             .addCase(createMovie.rejected, setRejected)
             .addCase(editMovie.rejected, setRejected)

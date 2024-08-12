@@ -8,12 +8,13 @@ class MovieController {
             const { limit, offset } = req.pagination;
             const movies = await Movie.findAll({
                 include: [
-                    { model: Genre, as: 'genre', attributes: ['title'] },
-                    { model: Studio, as: 'studio', attributes: ['title'] }
+                    { model: Genre, as: 'Genre', attributes: ['title'] },
+                    { model: Studio, as: 'Studio', attributes: ['title'] }
                 ],
                 attributes: ['id', 'title', 'release_year', 'poster'],
                 limit,
                 offset,
+                subQuery: false,
                 raw: true,
             });
             if (!movies.length) {
@@ -25,6 +26,7 @@ class MovieController {
             next(error);
         }
     }
+    
 
     createMovie = async (req, res, next) => {
         const t = await sequelize.transaction();

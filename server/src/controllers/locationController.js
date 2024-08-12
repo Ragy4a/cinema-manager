@@ -6,11 +6,8 @@ class LocationController {
     getAllLocations = async (req, res, next) => {
         try {
             const locations = await Location.findAll({
-                attributes: {
-                    exclude: ['country_id']
-                },
+                attributes: ['id', 'title', 'country_id'],
                 include: [{ model: Country, attributes: ['title', 'abbreviation'] }],
-                raw: true,
             });
             if (!locations.length) {
                 return next(createError(404, 'Locations not found'));
@@ -21,6 +18,7 @@ class LocationController {
             next(error);
         }
     }
+    
 
     createLocation = async (req, res, next) => {
         const t = await sequelize.transaction();

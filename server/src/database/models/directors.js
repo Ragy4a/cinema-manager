@@ -33,7 +33,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false
     },
-    death_year: {
+    death_date: {
       type: DataTypes.DATE,
       allowNull: true
     },

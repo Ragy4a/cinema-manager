@@ -29,7 +29,7 @@ class ActorController {
                 attributes: {
                     include: [
                         [
-                            sequelize.fn('COUNT', sequelize.col('Movies.id')),
+                            sequelize.fn('COUNT', sequelize.col('movies.id')),
                             'movies_count'
                         ]
                     ]
@@ -37,7 +37,7 @@ class ActorController {
                 include: [
                     {
                         model: Movie,
-                        as: 'Movies',
+                        as: 'movies',
                         attributes: [],
                         through: { attributes: [] }
                     }
@@ -82,18 +82,16 @@ class ActorController {
                     },
                     {
                         model: Movie,
-                        as: 'Movies',
+                        as: 'movies',
                         through: { attributes: [] },
-                        attributes: ['title'],
+                        attributes: ['id', 'title', 'poster'],
                     }
                 ],
-                attributes: ['id', 'first_name', 'second_name', 'photo'],
+                attributes: ['id', 'first_name', 'second_name', 'birth_date', 'death_date', 'photo'],
             });
-
             if (!actor) {
                 return next(createError(404, 'Actor not found!'));
             }
-
             res.status(200).json(actor);
         } catch (error) {
             next(error);

@@ -2,8 +2,14 @@ import { useState, useEffect } from 'react';
 import { List, ListItem, ListItemAvatar, ListItemText, Avatar, Typography, Box, Button, Pagination, TextField } from '@mui/material';
 import { styled } from '@mui/system';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
-import { deleteActor, getActors } from '../../store/slices/actorsSlice';
+import { Link, useNavigate } from 'react-router-dom';
+import { deleteActor, getAllActors } from '../../store/slices/actorsSlice';
+
+const StyledListContainer = styled(Box)({
+  maxHeight: '600px',
+  overflowY: 'auto',
+  flexGrow: 1,
+});
 
 const StyledList = styled(List)({
   width: '100%',
@@ -21,6 +27,7 @@ const StyledListItem = styled(ListItem)({
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
+  cursor: 'pointer',
 });
 
 const StyledAvatar = styled(Avatar)(({ theme }) => ({
@@ -32,7 +39,6 @@ const StyledAvatar = styled(Avatar)(({ theme }) => ({
 const ActorName = styled(Typography)({
   fontWeight: 'bold',
   fontSize: '1.2rem',
-  cursor: 'pointer',
   color: 'black',
   textDecoration: 'none',
 });
@@ -47,6 +53,12 @@ const ButtonGroup = styled(Box)({
   justifyContent: 'center',
   height: '100%',
 });
+
+const FilterButton = styled(Button)(({ theme }) => ({
+  minHeight: '40px',
+  minWidth: '100px',
+  marginRight: theme.spacing(1),
+}));
 
 const EditButton = styled(Button)(({ theme }) => ({
   marginBottom: theme.spacing(1),
@@ -67,6 +79,7 @@ const DeleteButton = styled(Button)(() => ({
 
 function ActorsList() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const actors = useSelector(state => state.actorsList.actors);
   const total = useSelector(state => state.actorsList.total);
   const [page, setPage] = useState(1);
@@ -75,7 +88,7 @@ function ActorsList() {
   const itemsPerPage = 5;
 
   useEffect(() => {
-    dispatch(getActors({ page, itemsPerPage, search, filter }));
+    dispatch(getAllActors({ page, itemsPerPage, search, filter }));
   }, [dispatch, page, itemsPerPage, search, filter]);
 
   const handlePageChange = (event, value) => {
@@ -92,13 +105,20 @@ function ActorsList() {
     setPage(1);
   };
 
+  const handleDeleteActor = (event, id) => {
+    event.stopPropagation();
+    dispatch(deleteActor(id));
+  };
+
+  const handleListItemClick = (id) => {
+    navigate(`/actors/${id}`);
+  };
+
+
   const count = Math.ceil(total / itemsPerPage);
 
   return (
-    <Box mt={4} sx={{ maxWidth: '1000px', margin: '0 auto' }}>
-      <Typography variant="h4" align="center" gutterBottom>
-        Actors
-      </Typography>
+    <Box mt={8} sx={{ maxWidth: '1000px', margin: '0 auto', display: 'flex', flexDirection: 'column', height: '100%' }}>
       <Box display="flex" justifyContent="space-between" mb={2}>
         <TextField
           label="Search Actors"
@@ -108,48 +128,63 @@ function ActorsList() {
           onChange={handleSearchChange}
         />
         <Box ml={2} display="flex" alignItems="center">
-          <Button variant="outlined" onClick={() => handleFilterChange('oldest')} sx={{ mr: 1 }}>Oldest</Button>
-          <Button variant="outlined" onClick={() => handleFilterChange('youngest')} sx={{ mr: 1 }}>Youngest</Button>
-          <Button variant="outlined" onClick={() => handleFilterChange('most-movies')}>Most Movies</Button>
+          <FilterButton variant="outlined" onClick={() => handleFilterChange('oldest')}>
+            Oldest
+          </FilterButton>
+          <FilterButton variant="outlined" onClick={() => handleFilterChange('youngest')}>
+            Youngest
+          </FilterButton>
+          <FilterButton variant="outlined" onClick={() => handleFilterChange('most-movies')}>
+            Most Movies
+          </FilterButton>
         </Box>
       </Box>
-      <StyledList>
-        {actors.map(({ id, first_name, second_name, photo }) => (
-          <StyledListItem key={id}>
-            <ListItemAvatar>
-              <StyledAvatar src={photo} alt={`${first_name} ${second_name}`} />
-            </ListItemAvatar>
-            <ListItemText
-              primary={
-                <ActorName component={Link} to={`/actors/${id}-${first_name}-${second_name}`}>
-                  {`${first_name} ${second_name}`}
-                </ActorName>
-              }
-              secondary={<ActorDetails component="span">Actor ID: {id}</ActorDetails>}
-            />
-            <ButtonGroup>
-              <EditButton
-                component={Link}
-                to={`/actors/edit/${id}`}
-                variant="contained"
-              >
-                Edit
-              </EditButton>
-              <DeleteButton onClick={() => dispatch(deleteActor(id))} variant="contained">Delete</DeleteButton>
-            </ButtonGroup>
-          </StyledListItem>
-        ))}
-      </StyledList>
+      <StyledListContainer>
+        <StyledList>
+          {actors.map(({ id, first_name, second_name, photo }) => (
+            <StyledListItem 
+              key={id} 
+              onClick={() => handleListItemClick(id, first_name, second_name)}
+            >
+              <ListItemAvatar>
+                <StyledAvatar src={photo} alt={`${first_name} ${second_name}`} />
+              </ListItemAvatar>
+              <ListItemText
+                primary={
+                  <ActorName component="span">
+                    {`${first_name} ${second_name}`}
+                  </ActorName>
+                }
+                secondary={<ActorDetails component="span">Actor ID: {id}</ActorDetails>}
+              />
+              <ButtonGroup>
+                <EditButton
+                  component={Link}
+                  to={`/actors/edit/${id}`}
+                  variant="contained"
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  Edit
+                </EditButton>
+                <DeleteButton onClick={(event) => handleDeleteActor(event, id)} variant="contained">
+                  Delete
+                </DeleteButton>
+              </ButtonGroup>
+            </StyledListItem>
+          ))}
+        </StyledList>
+      </StyledListContainer>
       {count > 0 && (
-        <Pagination
-          count={count}
-          page={page}
-          onChange={handlePageChange}
-          sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}
-        />
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+          <Pagination
+            count={count}
+            page={page}
+            onChange={handlePageChange}
+          />
+        </Box>
       )}
     </Box>
   );
-}
+};
 
 export default ActorsList;

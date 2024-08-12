@@ -10,8 +10,8 @@ const initialState = {
     filteredActors: [], 
 };
 
-export const getActors = createAsyncThunk(
-    `${ACTORS_SLICE_NAME}/getActors`,
+export const getAllActors = createAsyncThunk(
+    `${ACTORS_SLICE_NAME}/getAllActors`,
     async ({ page = 1, itemsPerPage = 5, search, filter }, { rejectWithValue }) => {
         try {
             const params = {
@@ -59,8 +59,8 @@ export const createActor = createAsyncThunk(
     }
 );
 
-export const editActor = createAsyncThunk(
-    `${ACTORS_SLICE_NAME}/editActor`,
+export const updateActor = createAsyncThunk(
+    `${ACTORS_SLICE_NAME}/updateActor`,
     async (actor, { rejectWithValue }) => {
         try {
             const { status, data } = await api.put(`${ACTORS_SLICE_NAME}/${actor.id}`, actor);
@@ -90,7 +90,7 @@ const actorsSlice = createSlice({
     initialState,
     extraReducers: (builder) => {
         builder
-            .addCase(getActors.fulfilled, (state, { payload }) => {
+            .addCase(getAllActors.fulfilled, (state, { payload }) => {
                 state.total = payload.total;
                 state.actors = payload.actors;
                 state.status = 'fulfilled';
@@ -106,7 +106,7 @@ const actorsSlice = createSlice({
                 state.status = 'fulfilled';
                 state.error = null;
             })
-            .addCase(editActor.fulfilled, (state, { payload }) => {
+            .addCase(updateActor.fulfilled, (state, { payload }) => {
                 state.actors = state.actors.map((actor) =>
                     actor.id === payload.id ? payload : actor
                 );
@@ -118,15 +118,15 @@ const actorsSlice = createSlice({
                 state.status = 'fulfilled';
                 state.error = null;
             })
-            .addCase(getActors.pending, setPending)
+            .addCase(getAllActors.pending, setPending)
             .addCase(getActorById.pending, setPending)
             .addCase(createActor.pending, setPending)
-            .addCase(editActor.pending, setPending)
+            .addCase(updateActor.pending, setPending)
             .addCase(deleteActor.pending, setPending)
-            .addCase(getActors.rejected, setRejected)
+            .addCase(getAllActors.rejected, setRejected)
             .addCase(getActorById.rejected, setRejected)
             .addCase(createActor.rejected, setRejected)
-            .addCase(editActor.rejected, setRejected)
+            .addCase(updateActor.rejected, setRejected)
             .addCase(deleteActor.rejected, setRejected)
     }
 });

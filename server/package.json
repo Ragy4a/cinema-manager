@@ -11,7 +11,8 @@
     "miga": "npx sequelize db:migrate",
     "migu": "npx sequelize db:migrate:undo:all",
     "seeda": "npx sequelize db:seed:all",
-    "seedu": "npx sequelize db:seed:undo:all"
+    "seedu": "npx sequelize db:seed:undo:all",
+    "restart": "npm run seedu && npm run migu && npm run miga && npm run seeda"
   },
   "keywords": [],
   "author": "Ragy4a",

@@ -26,7 +26,7 @@ const PERSON_VALIDATION_SCHEMA = yup.object().shape({
     birth_date: yup.date().required('Birth date is required'),
     birth_place: yup.string().required('Birth place is required'),
     death_place: URL,
-    death_year: yup.date().nullable().notRequired(),
+    death_date: yup.date().nullable().notRequired(),
     photo: URL,
 });
 

@@ -30,7 +30,7 @@ module.exports = {
         onDelete: 'SET NULL',
         allowNull: false,
       },
-      death_year: {
+      death_date: {
         type: Sequelize.DATE,
         allowNull: true
       },

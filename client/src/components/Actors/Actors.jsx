@@ -6,13 +6,13 @@ import { Routes, Route, Link } from "react-router-dom";
 
 import ActorsItem from "./ActorsItem";
 import ActorsList from "./ActorsList";
-import { getActors } from "../../store/slices/actorsSlice";
+import { getAllActors } from "../../store/slices/actorsSlice";
 
 function Actors() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getActors());
+    dispatch(getAllActors());
   }, [dispatch]);
 
   return (
@@ -28,7 +28,7 @@ function Actors() {
         </CardActionArea>
       </Card>
       <Routes>
-        <Route path=':id-:first_name-:second_name' element={<ActorsItem />} />
+        <Route path="/:id" element={<ActorsItem />} />
         <Route path='/' element={<ActorsList />} />
       </Routes>
     </>
