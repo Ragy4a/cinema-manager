@@ -43,7 +43,10 @@ const filterImage = (req, file, cb) => {
     if(mimeTypeRegex.test(file.mimetype)) {
         cb(null, true);
     } else {
-        cb(null, false);
+        cb(
+            new Error('Invalid file type. Only PNG, JPEG, and GIF are allowed.'), 
+            false
+        );
     }
 }
 

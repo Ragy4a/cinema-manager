@@ -5,12 +5,7 @@ class CountryController {
 
     getAllCountries = async (req, res, next) => {
         try {
-            const { limit, offset } = req.pagination;
-            const countries = await Country.findAll({
-                limit,
-                offset,
-                raw: true
-            });
+            const countries = await Country.findAll({ raw: true });
             if (!countries.length) {
                 return next(createError(404, 'Countries not found'));
             }
@@ -24,8 +19,7 @@ class CountryController {
     createCountry = async (req, res, next) => {
         const t = await sequelize.transaction();
         try {
-            const { title, abbreviation } = req.body;
-            const newCountry = await Country.create({ title, abbreviation }, {
+            const newCountry = await Country.create(req.body, {
                 transaction: t,
                 raw: true,
                 returning: true,
@@ -46,8 +40,8 @@ class CountryController {
     updateCountry = async (req, res, next) => {
         const t = await sequelize.transaction();
         try {
-            const { id, title, abbreviation } = req.body;
-            const [affectedRows, [updatedCountry]] = await Country.update({ title, abbreviation }, {
+            const { id } = req.body;
+            const [affectedRows, [updatedCountry]] = await Country.update(req.body, {
                 where: { id },
                 transaction: t,
                 returning: true,

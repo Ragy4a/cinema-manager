@@ -11,13 +11,13 @@ function CinemaService() {
   return (
     <Box sx={{ backgroundColor: '#f0f0f0', padding: 2, height: '100%' }}>
       <Routes>
-        <Route path='/actors/new' element={<ActorsForm />} />
+        <Route path='/actors/new/:id' element={<ActorsForm />} />
         <Route path='/actors/edit/:id' element={<ActorsForm />} />
-        <Route path='/directors/add-new' element={<DirectorsForm />} />
+        <Route path='/directors/add-form' element={<DirectorsForm />} />
         <Route path='/directors/edit/:id' element={<DirectorsForm />} />
-        <Route path='/movies/add-new' element={<MoviesForm />} />
+        <Route path='/movies/add-form' element={<MoviesForm />} />
         <Route path='/movies/edit/:id' element={<MoviesForm />} />
-        <Route path='/studios/add-new' element={<StudiosForm />} />
+        <Route path='/studios/add-form' element={<StudiosForm />} />
         <Route path='/studios/edit/:id' element={<StudiosForm />} />
         <Route index element={<CarouselList />} />
       </Routes>

@@ -1,5 +1,5 @@
 const createError = require('http-errors');
-const { Actor, Location, Movie, MoviesActors, sequelize } = require('../database/models');
+const { Actor, Location, Country, Movie, MoviesActors, sequelize } = require('../database/models');
 const { Op } = require('sequelize');
 
 class ActorController {
@@ -73,12 +73,20 @@ class ActorController {
                     {
                         model: Location,
                         as: 'birthActorLocation',
-                        attributes: ['title'],
+                        attributes: ['title', 'id'],
+                        include: {
+                            model: Country,
+                            attributes: ['title', 'id'],
+                        },
                     },
                     {
                         model: Location,
                         as: 'deathActorLocation',
-                        attributes: ['title'],
+                        attributes: ['title', 'id'],
+                        include: {
+                            model: Country,
+                            attributes: ['title', 'id'],
+                        },
                     },
                     {
                         model: Movie,
@@ -97,15 +105,28 @@ class ActorController {
             next(error);
         }
     };
+    
 
     createActor = async (req, res, next) => {
         const t = await sequelize.transaction();
         try {
-            const { first_name, second_name, birth_date, birth_place, death_place, death_year, movies } = req.body;
+            console.log(req.body)
+            const { first_name, second_name, birth_date, birth_place, death_place, death_year, movies, country } = req.body;
             const photo = req.file ? req.file.filename : null;
 
+            const countryInstance = await Country.findOne({
+                where: { title: country },
+                attributes: ['id'],
+                transaction: t,
+                raw: true,
+            });
+            if (!countryInstance) {
+                await t.rollback();
+                return next(createError(404, 'Country not found!'));
+            }
+
             const birthLocation = await Location.findOne({
-                where: { title: birth_place },
+                where: { title: birth_place, country_id: countryInstance.id },
                 attributes: ['id'],
                 transaction: t,
                 raw: true,
@@ -115,10 +136,10 @@ class ActorController {
                 return next(createError(404, 'Birth place location not found!'));
             }
 
-            let deathLocation = null;
+            let deathActorLocation = null;
             if (death_place) {
                 const locationResult = await Location.findOne({
-                    where: { title: death_place },
+                    where: { title: death_place, country_id: countryInstance.id },
                     attributes: ['id'],
                     transaction: t,
                     raw: true,
@@ -127,7 +148,7 @@ class ActorController {
                     await t.rollback();
                     return next(createError(404, 'Death place location not found!'));
                 }
-                deathLocation = locationResult.id;
+                deathActorLocation = locationResult.id;
             }
 
             const newActor = await Actor.create({
@@ -135,7 +156,7 @@ class ActorController {
                 second_name,
                 birth_date,
                 birth_place: birthLocation.id,
-                death_place: deathLocation ?? null,
+                death_place: deathActorLocation ?? null,
                 death_year,
                 photo
             }, {
@@ -171,24 +192,36 @@ class ActorController {
     updateActor = async (req, res, next) => {
         const t = await sequelize.transaction();
         try {
-            const { id, first_name, second_name, birth_date, birth_place, death_place, death_year, movies } = req.body;
+            console.log(req.body)
+            const { id, first_name, second_name, birth_date, birth_place, death_place, death_year, movies, country } = req.body;
             const photo = req.file ? req.file.filename : null;
 
-            const birthLocation = await Location.findOne({
-                where: { title: birth_place },
+            const countryInstance = await Country.findOne({
+                where: { title: country },
                 attributes: ['id'],
                 transaction: t,
                 raw: true,
             });
-            if (!birthLocation) {
+            if (!countryInstance) {
+                await t.rollback();
+                return next(createError(404, 'Country not found!'));
+            }
+
+            const birthActorLocation = await Location.findOne({
+                where: { title: birth_place, country_id: countryInstance.id },
+                attributes: ['id'],
+                transaction: t,
+                raw: true,
+            });
+            if (!birthActorLocation) {
                 await t.rollback();
                 return next(createError(404, 'Birth place location not found!'));
             }
 
-            let deathLocation = null;
+            let deathActorLocation = null;
             if (death_place) {
                 const locationResult = await Location.findOne({
-                    where: { title: death_place },
+                    where: { title: death_place, country_id: countryInstance.id },
                     attributes: ['id'],
                     transaction: t,
                     raw: true,
@@ -197,7 +230,7 @@ class ActorController {
                     await t.rollback();
                     return next(createError(404, 'Death place location not found!'));
                 }
-                deathLocation = locationResult.id;
+                deathActorLocation = locationResult.id;
             }
 
             const [affectedRows, [updatedActor]] = await Actor.update({
@@ -205,7 +238,7 @@ class ActorController {
                 second_name,
                 birth_date,
                 birth_place: birthLocation.id,
-                death_place: deathLocation ?? null,
+                death_place: deathActorLocation ?? null,
                 death_year,
                 photo
             }, {

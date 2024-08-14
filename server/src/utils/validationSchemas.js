@@ -1,7 +1,7 @@
 const yup = require('yup');
 
 const TITLE_CHECK = yup.string().required('The title is required');
-const URL = yup.string().nullable().notRequired();
+const nullableString = yup.string().nullable().notRequired();
 const ID_CHECK = yup.number().integer('Id must be integer').positive('Id must be positive').required('Id is required')
 
 
@@ -25,9 +25,9 @@ const PERSON_VALIDATION_SCHEMA = yup.object().shape({
     second_name: yup.string().required('Second name is required'),
     birth_date: yup.date().required('Birth date is required'),
     birth_place: yup.string().required('Birth place is required'),
-    death_place: URL,
+    death_place: nullableString,
     death_date: yup.date().nullable().notRequired(),
-    photo: URL,
+    photo: nullableString,
 });
 
 const GENRE_VALIDATION_SCHEMA = yup.object().shape({
@@ -40,13 +40,13 @@ const MOVIE_VALIDATION_SCHEMA = yup.object().shape({
     release_year: yup.date().required('Release year is required'),
     genre: yup.string().required('Genre is required'),
     studio: yup.string().required('Studio is required'),
-    poster: URL
+    poster: nullableString
 });
 
 const STUDIO_VALIDATION_SCHEMA = yup.object().shape({
     title: TITLE_CHECK,
     found_year: yup.date().required('Found year is required'),
-    logo: URL,
+    logo: nullableString,
     location: yup.string().required('Location is required')
 });
 

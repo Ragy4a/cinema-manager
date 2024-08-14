@@ -3,9 +3,7 @@ const router = Router();
 
 const genreController = require('../controllers/genreController');
 
-const {
-    validation: { validateGenre }
-} = require('../middlewares');
+const { validation: { validateGenre } } = require('../middlewares');
 
 router
     .route('/')

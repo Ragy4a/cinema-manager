@@ -7,7 +7,8 @@ class LocationController {
         try {
             const locations = await Location.findAll({
                 attributes: ['id', 'title', 'country_id'],
-                include: [{ model: Country, attributes: ['title', 'abbreviation'] }],
+                include: [{ model: Country, attributes: ['title'] }],
+                raw: true,
             });
             if (!locations.length) {
                 return next(createError(404, 'Locations not found'));

@@ -9,14 +9,16 @@ const ActorsItem = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    dispatch(getActorById(id));
+  }, [dispatch, id]);
+  
   const actor = useSelector((state) => state.actorsList.actors.find((actor) => actor.id === Number(id)));
   const status = useSelector((state) => state.actorsList.status);
-
-  useEffect(() => {
-    if (!actor) {
-      dispatch(getActorById(id));
-    }
-  }, [dispatch, id, actor]);
+  
+  const handleMovieClick = (movieId) => {
+    navigate(`/movies/${movieId}`)
+  };
 
   const handleDelete = () => {
     dispatch(deleteActor(id));
@@ -76,10 +78,10 @@ const ActorsItem = () => {
         <Typography variant="h5" gutterBottom>
           Movies
         </Typography>
-        <List>
+        <List sx={{bgcolor: '#d4d4d4'}}>
           {movies && movies.length > 0 ? (
             movies.map(({ id, title, poster }) => (
-              <ListItem key={id}>
+              <ListItem key={id} sx={{cursor: 'pointer', bgcolor: '#ebebeb', width: '95%', margin: 'auto', marginTop: '10px'}} onClick={() => handleMovieClick(id)}>
                 <ListItemAvatar>
                   <Avatar
                     variant="square"
@@ -90,7 +92,6 @@ const ActorsItem = () => {
                 </ListItemAvatar>
                 <ListItemText
                   primary={title}
-                  secondary={`Movie ID: ${id}`}
                 />
               </ListItem>
             ))

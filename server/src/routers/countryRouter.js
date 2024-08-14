@@ -3,14 +3,11 @@ const router = new Router();
 
 const countryController = require('../controllers/countryController');
 
-const {
-    paginate: { paginateData },
-    validation: { validateCountry }
-} = require('../middlewares');
+const { validation: { validateCountry } } = require('../middlewares');
 
 router
     .route('/')
-        .get(paginateData, countryController.getAllCountries)
+        .get(countryController.getAllCountries)
         .post(validateCountry, countryController.createCountry)
         .put(validateCountry, countryController.updateCountry)
 router

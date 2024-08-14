@@ -8,8 +8,8 @@ const initialState = {
     error: null,
 };
 
-export const getDirectors = createAsyncThunk(
-    `${DIRECTORS_SLICE_NAME}/getDirectors`,
+export const getAllDirectors = createAsyncThunk(
+    `${DIRECTORS_SLICE_NAME}/getAllDirectors`,
     async (_, { rejectWithValue }) => {
         try {
             const { status, data } = await api.get(`${DIRECTORS_SLICE_NAME}/`);
@@ -47,8 +47,8 @@ export const createDirector = createAsyncThunk(
     }
 );
 
-export const editDirector = createAsyncThunk(
-    `${DIRECTORS_SLICE_NAME}/editDirector`,
+export const updateDirector = createAsyncThunk(
+    `${DIRECTORS_SLICE_NAME}/updateDirector`,
     async (director, { rejectWithValue }) => {
         try {
             const { status, data } = await api.put(`${DIRECTORS_SLICE_NAME}/${director.id}`, director);
@@ -78,7 +78,7 @@ const directorsSlice = createSlice({
     initialState,
     extraReducers: (builder) => {
         builder
-            .addCase(getDirectors.fulfilled, (state, { payload }) => {
+            .addCase(getAllDirectors.fulfilled, (state, { payload }) => {
                 state.directors = payload;
                 state.status = 'fulfilled';
                 state.error = null;
@@ -93,7 +93,7 @@ const directorsSlice = createSlice({
                 state.status = 'fulfilled';
                 state.error = null;
             })
-            .addCase(editDirector.fulfilled, (state, { payload }) => {
+            .addCase(updateDirector.fulfilled, (state, { payload }) => {
                 state.directors = state.directors.map((director) =>
                 director.id === payload.id ? payload : director);
                 state.status = 'fulfilled';
@@ -104,15 +104,15 @@ const directorsSlice = createSlice({
                 state.status = 'fulfilled';
                 state.error = null;
             })
-            .addCase(getDirectors.pending, setPending)
+            .addCase(getAllDirectors.pending, setPending)
             .addCase(getDirectorById.pending, setPending)
             .addCase(createDirector.pending, setPending)
-            .addCase(editDirector.pending, setPending)
+            .addCase(updateDirector.pending, setPending)
             .addCase(deleteDirector.pending, setPending)
-            .addCase(getDirectors.rejected, setRejected)
+            .addCase(getAllDirectors.rejected, setRejected)
             .addCase(getDirectorById.rejected, setRejected)
             .addCase(createDirector.rejected, setRejected)
-            .addCase(editDirector.rejected, setRejected)
+            .addCase(updateDirector.rejected, setRejected)
             .addCase(deleteDirector.rejected, setRejected)
     }
 });

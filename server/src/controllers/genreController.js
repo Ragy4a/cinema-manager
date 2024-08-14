@@ -5,10 +5,7 @@ class GenreController {
 
     getAllGenres = async (req, res, next) => {
         try {
-            const genres = await Genre.findAll({
-                attributes: ['id', 'title', 'description'],
-                raw: true
-            });
+            const genres = await Genre.findAll({ raw: true });
             if (!genres.length) {
                 return next(createError(404, 'Genres not found!'));
             }

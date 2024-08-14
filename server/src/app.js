@@ -9,12 +9,12 @@ const {
 
 
 const app = express();
+app.use(express.json());
 app.use(cors({
     origin: process.env.CLIENT,
     methods: 'GET,POST,PUT,DELETE',
     credentials: true,
 }));
-app.use(express.json());
 app.use(express.static(path.resolve(process.env.STATIC_PATH)));
 
 app.use('/api', routers);

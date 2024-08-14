@@ -2,19 +2,30 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-import * as Yup from 'yup';
 import { TextField, Button, Select, MenuItem, InputLabel, FormControl, Box, Avatar, Typography, Chip } from '@mui/material';
 import { getActorById, createActor, updateActor } from '../../store/slices/actorsSlice';
 import { getAllCountries } from '../../store/slices/countriesSlice';
 import { getAllLocations } from '../../store/slices/locationsSlice';
 import { getAllMovies } from '../../store/slices/moviesSlice';
 import { DatePicker } from '@mui/x-date-pickers';
+import { PersonSchema } from '../../utils/validationSchemas';
 import { createEmptyPerson } from '../../constants';
+import { styled } from '@mui/material/styles';
+
+const ErrorMessageStyled = styled('div')({
+  color: 'red',
+  fontWeight: 'bold',
+  padding: '8px',
+  borderRadius: '4px',
+  marginTop: '8px',
+});
 
 const ActorForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { id } = useParams();
+
+  const { id: urlId } = useParams();
+  const id = (urlId && urlId !== ':id') ? Number(urlId) : false;
 
   const [filteredBirthLocations, setFilteredBirthLocations] = useState([]);
   const [filteredDeathLocations, setFilteredDeathLocations] = useState([]);
@@ -41,32 +52,41 @@ const ActorForm = () => {
 
   useEffect(() => {
     if (actor) {
-      const birthCountryLocations = locations.filter(
-        (location) => location.country_id === actor.birthActorLocation?.country_id
-      );
-      setFilteredBirthLocations(birthCountryLocations);
-
-      const deathCountryLocations = actor.deathActorLocation
-        ? locations.filter((location) => location.country_id === actor.deathActorLocation.country_id)
-        : [];
-      setFilteredDeathLocations(deathCountryLocations);
       if (actor.photo) {
         setPreview(actor.photo);
       }
       if (actor.movies) {
         setSelectedMovies(actor.movies.map(movie => movie.title));
       }
+
+      const birthCountryId = actor.birthActorLocation?.Country?.id;
+      if (birthCountryId) {
+        const birthCountryLocations = locations.filter(location => location.country_id === birthCountryId);
+        setFilteredBirthLocations(birthCountryLocations);
+        setFilteredDeathLocations(birthCountryLocations);
+      }
     }
   }, [actor, locations]);
 
   const handleCountryChange = (event, setFieldValue) => {
-    const selectedCountryId = event.target.value;
-    setFieldValue('country_id', selectedCountryId);
-    const filteredBirth = locations.filter((location) => location.country_id === selectedCountryId);
-    setFilteredBirthLocations(filteredBirth);
+    const selectedCountry = countries.find(country => country.id === event.target.value);
+    setFieldValue('country', selectedCountry ? selectedCountry.title : '');
+
+    const filteredLocations = locations.filter(location => location.country_id === selectedCountry?.id);
+    setFilteredBirthLocations(filteredLocations);
+    setFilteredDeathLocations(filteredLocations);
     setFieldValue('birth_place', '');
-    setFilteredDeathLocations(filteredBirth); 
-    setFieldValue('death_place', ''); 
+    setFieldValue('death_place', '');
+  };
+
+  const handleBirthPlaceChange = (event, setFieldValue) => {
+    const selectedLocation = filteredBirthLocations.find(location => location.id === event.target.value);
+    setFieldValue('birth_place', selectedLocation ? selectedLocation.title : '');
+  };
+
+  const handleDeathPlaceChange = (event, setFieldValue) => {
+    const selectedLocation = filteredDeathLocations.find(location => location.id === event.target.value);
+    setFieldValue('death_place', selectedLocation ? selectedLocation.title : '');
   };
 
   const handlePhotoChange = (event) => {
@@ -86,20 +106,12 @@ const ActorForm = () => {
     setSelectedMovies(selectedMovies.filter(movie => movie !== movieTitle));
   };
 
-  const schema = Yup.object().shape({
-    first_name: Yup.string().required('First name is required'),
-    second_name: Yup.string().required('Second name is required'),
-    birth_date: Yup.date().required('Birth date is required'),
-    birth_place: Yup.number().required('Birth place is required'),
-    death_year: Yup.date().nullable(),
-    death_place: Yup.number().nullable(),
-    photo: Yup.mixed().nullable(),
-    movies: Yup.array().of(Yup.string()).nullable(),
-  });
-
   const handleSubmit = (values) => {
-    const actorData = { ...values, movies: selectedMovies };
-
+    const actorData = {
+      ...values,
+      movies: selectedMovies
+    };
+    console.log(actorData)
     if (photoFile) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -109,7 +121,7 @@ const ActorForm = () => {
         } else {
           dispatch(createActor(actorData));
         }
-        navigate('/actors');
+        // navigate('/actors');
       };
       reader.readAsDataURL(photoFile);
     } else {
@@ -118,21 +130,21 @@ const ActorForm = () => {
       } else {
         dispatch(createActor(actorData));
       }
-      navigate('/actors');
+      // navigate('/actors');
     }
   };
 
   return (
     <Formik
-      initialValues={actor ? { 
-        ...actor, 
+      initialValues={actor ? {
+        ...actor,
         birth_date: actor.birth_date ? new Date(actor.birth_date) : null,
-        country_id: actor.birth_place ? locations.find(loc => loc.id === actor.birth_place)?.country_id : '', 
-        birth_place: actor.birth_place || '',
-        death_place: actor.death_place || '',
+        country: actor.birthActorLocation?.Country?.title || '',
+        birth_place: actor.birthActorLocation?.title || '',
+        death_place: actor.deathActorLocation?.title || '',
         movies: selectedMovies || []
       } : createEmptyPerson()}
-      validationSchema={schema}
+      validationSchema={PersonSchema}
       onSubmit={handleSubmit}
       enableReinitialize
     >
@@ -148,7 +160,7 @@ const ActorForm = () => {
               onChange={handleChange}
               value={values.first_name}
             />
-            <ErrorMessage name="first_name" component="div" className="error" />
+            <ErrorMessage name="first_name" component={ErrorMessageStyled} />
 
             <Field
               as={TextField}
@@ -159,7 +171,7 @@ const ActorForm = () => {
               onChange={handleChange}
               value={values.second_name}
             />
-            <ErrorMessage name="second_name" component="div" className="error" />
+            <ErrorMessage name="second_name" component={ErrorMessageStyled} />
 
             <DatePicker
               label="Birth Date"
@@ -169,12 +181,12 @@ const ActorForm = () => {
                 <TextField {...params} name="birth_date" fullWidth margin="normal" />
               )}
             />
-            <ErrorMessage name="birth_date" component="div" className="error" />
+            <ErrorMessage name="birth_date" component={ErrorMessageStyled} />
 
             <FormControl fullWidth margin="normal">
               <InputLabel>Country</InputLabel>
               <Select
-                value={values.country_id || ''}
+                value={countries.find(country => country.title === values.country)?.id || ''}
                 onChange={(event) => handleCountryChange(event, setFieldValue)}
                 label="Country"
               >
@@ -187,55 +199,60 @@ const ActorForm = () => {
             </FormControl>
 
             <FormControl fullWidth margin="normal">
-            <InputLabel>Birth Place</InputLabel>
-            <Select
-                value={values.birth_place || ''}
-                onChange={(event) => setFieldValue('birth_place', event.target.value)}
+              <InputLabel>Birth Place</InputLabel>
+              <Select
+                value={filteredBirthLocations.find(location => location.title === values.birth_place)?.id || ''}
+                onChange={(event) => handleBirthPlaceChange(event, setFieldValue)}
                 label="Birth Place"
                 disabled={!filteredBirthLocations.length}
-            >
+              >
                 {filteredBirthLocations.length > 0 ? (
-                filteredBirthLocations.map((location) => (
+                  filteredBirthLocations.map((location) => (
                     <MenuItem key={location.id} value={location.id}>
-                    {location.title}
+                      {location.title}
                     </MenuItem>
-                ))
+                  ))
                 ) : (
-                <MenuItem value="" disabled>
+                  <MenuItem value="" disabled>
                     No available locations
-                </MenuItem>
+                  </MenuItem>
                 )}
-            </Select>
+              </Select>
             </FormControl>
-
-            <ErrorMessage name="birth_place" component="div" className="error" />
+            <ErrorMessage name="birth_place" component={ErrorMessageStyled} />
 
             <DatePicker
               label="Death Year"
-              value={values.death_year || null}
-              onChange={(newValue) => setFieldValue('death_year', newValue)}
+              value={values.death_date || null}
+              onChange={(newValue) => setFieldValue('death_date', newValue)}
               textField={(params) => (
-                <TextField {...params} name="death_year" fullWidth margin="normal" />
+                <TextField {...params} name="death_date" fullWidth margin="normal" />
               )}
             />
-            <ErrorMessage name="death_year" component="div" className="error" />
+            <ErrorMessage name="death_date" component={ErrorMessageStyled} />
 
             <FormControl fullWidth margin="normal">
               <InputLabel>Death Place</InputLabel>
               <Select
-                value={values.death_place || ''}
-                onChange={(event) => setFieldValue('death_place', event.target.value)}
+                value={filteredDeathLocations.find(location => location.title === values.death_place)?.id || ''}
+                onChange={(event) => handleDeathPlaceChange(event, setFieldValue)}
                 label="Death Place"
                 disabled={!filteredDeathLocations.length}
               >
-                {filteredDeathLocations.map((location) => (
-                  <MenuItem key={location.id} value={location.id}>
-                    {location.title}
+                {filteredDeathLocations.length > 0 ? (
+                  filteredDeathLocations.map((location) => (
+                    <MenuItem key={location.id} value={location.id}>
+                      {location.title}
+                    </MenuItem>
+                  ))
+                ) : (
+                  <MenuItem value="" disabled>
+                    No available locations
                   </MenuItem>
-                ))}
+                )}
               </Select>
             </FormControl>
-            <ErrorMessage name="death_place" component="div" className="error" />
+            <ErrorMessage name="death_place" component={ErrorMessageStyled} />
 
             <Box sx={{ mt: 3 }}>
               <Typography variant="subtitle1" gutterBottom>Upload Photo</Typography>

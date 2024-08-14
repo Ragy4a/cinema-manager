@@ -50,8 +50,9 @@ export const createActor = createAsyncThunk(
     `${ACTORS_SLICE_NAME}/createActor`,
     async (actor, { rejectWithValue }) => {
         try {
-            const { status, data } = await api.post(`${ACTORS_SLICE_NAME}/`, actor);
+            const { status, data } = await api.post(`${ACTORS_SLICE_NAME}`, actor);
             if (status >= 400) throw new Error(`Error with creating actor. Error status is ${status}.`);
+            console.log(data)
             return data;
         } catch (error) {
             return rejectWithValue(error.message);
