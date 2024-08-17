@@ -29,7 +29,7 @@ export const createEmptyPerson = () => {
     movies: [],
   }
 }
-
+export const pathToImages = 'http://localhost:5000/images';
 export const posters =[
   { id: 1, url: "https://pluggedin.ru/images/upload/1655926482.jpg", alt: 'poster', title: 'House of Dragon' },
   {  id: 2, url: "https://www.combook.ru/imgrab/0068/9785041165246.jpg", alt: 'poster', title: 'Game of Thrones' },

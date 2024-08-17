@@ -4,6 +4,7 @@ import { styled } from '@mui/system';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { deleteActor, getAllActors } from '../../store/slices/actorsSlice';
+import { pathToImages } from '../../constants';
 
 const StyledListContainer = styled(Box)({
   maxHeight: '600px',
@@ -144,10 +145,10 @@ function ActorsList() {
           {actors.map(({ id, first_name, second_name, photo }) => (
             <StyledListItem 
               key={id} 
-              onClick={() => handleListItemClick(id, first_name, second_name)}
+              onClick={() => handleListItemClick(id)}
             >
               <ListItemAvatar>
-                <StyledAvatar src={photo} alt={`${first_name} ${second_name}`} />
+                <StyledAvatar src={`${pathToImages}/actors/${photo}`} alt={`${first_name} ${second_name}`} />
               </ListItemAvatar>
               <ListItemText
                 primary={
@@ -155,7 +156,6 @@ function ActorsList() {
                     {`${first_name} ${second_name}`}
                   </ActorName>
                 }
-                secondary={<ActorDetails component="span">Actor ID: {id}</ActorDetails>}
               />
               <ButtonGroup>
                 <EditButton

@@ -9,7 +9,7 @@ import { getAllLocations } from '../../store/slices/locationsSlice';
 import { getAllMovies } from '../../store/slices/moviesSlice';
 import { DatePicker } from '@mui/x-date-pickers';
 import { PersonSchema } from '../../utils/validationSchemas';
-import { createEmptyPerson } from '../../constants';
+import { createEmptyPerson, pathToImages } from '../../constants';
 import { styled } from '@mui/material/styles';
 
 const ErrorMessageStyled = styled('div')({
@@ -112,12 +112,14 @@ const ActorForm = () => {
       movies: selectedMovies
     };
     console.log(actorData)
+    console.log(photoFile)
     if (photoFile) {
       const reader = new FileReader();
       reader.onloadend = () => {
         actorData.photo = reader.result;
+        console.log(actorData.photo)
         if (id) {
-          dispatch(updateActor({ id, ...actorData }));
+          dispatch(updateActor(actorData));
         } else {
           dispatch(createActor(actorData));
         }
@@ -126,7 +128,7 @@ const ActorForm = () => {
       reader.readAsDataURL(photoFile);
     } else {
       if (id) {
-        dispatch(updateActor({ id, ...actorData }));
+        dispatch(updateActor(actorData));
       } else {
         dispatch(createActor(actorData));
       }
@@ -258,7 +260,7 @@ const ActorForm = () => {
               <Typography variant="subtitle1" gutterBottom>Upload Photo</Typography>
               {preview && (
                 <Box sx={{ mb: 2, textAlign: 'center' }}>
-                  <Avatar src={preview} sx={{ width: 150, height: 150, margin: '0 auto', border: '1px solid #ddd' }} />
+                  <Avatar src={`${pathToImages}/actors/${preview}`} sx={{ width: 150, height: 150, margin: '0 auto', border: '1px solid #ddd' }} />
                 </Box>
               )}
               <Button variant="contained" component="label">

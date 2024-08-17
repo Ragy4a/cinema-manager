@@ -64,7 +64,7 @@ export const updateActor = createAsyncThunk(
     `${ACTORS_SLICE_NAME}/updateActor`,
     async (actor, { rejectWithValue }) => {
         try {
-            const { status, data } = await api.put(`${ACTORS_SLICE_NAME}/${actor.id}`, actor);
+            const { status, data } = await api.put(`${ACTORS_SLICE_NAME}`, actor);
             if (status >= 400) throw new Error(`Error with editing actor. Error status is ${status}.`);
             return data;
         } catch (error) {

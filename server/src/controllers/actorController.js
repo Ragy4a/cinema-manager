@@ -110,10 +110,8 @@ class ActorController {
     createActor = async (req, res, next) => {
         const t = await sequelize.transaction();
         try {
-            console.log(req.body)
             const { first_name, second_name, birth_date, birth_place, death_place, death_year, movies, country } = req.body;
             const photo = req.file ? req.file.filename : null;
-
             const countryInstance = await Country.findOne({
                 where: { title: country },
                 attributes: ['id'],
@@ -124,7 +122,6 @@ class ActorController {
                 await t.rollback();
                 return next(createError(404, 'Country not found!'));
             }
-
             const birthLocation = await Location.findOne({
                 where: { title: birth_place, country_id: countryInstance.id },
                 attributes: ['id'],
@@ -135,7 +132,6 @@ class ActorController {
                 await t.rollback();
                 return next(createError(404, 'Birth place location not found!'));
             }
-
             let deathActorLocation = null;
             if (death_place) {
                 const locationResult = await Location.findOne({
@@ -150,7 +146,6 @@ class ActorController {
                 }
                 deathActorLocation = locationResult.id;
             }
-
             const newActor = await Actor.create({
                 first_name,
                 second_name,
@@ -163,7 +158,6 @@ class ActorController {
                 transaction: t,
                 returning: true,
             });
-
             if (movies && movies.length > 0) {
                 for (const title of movies) {
                     const movie = await Movie.findOne({
@@ -180,7 +174,6 @@ class ActorController {
                     }, { transaction: t });
                 }
             }
-
             await t.commit();
             res.status(201).json(newActor);
         } catch (error) {
@@ -192,10 +185,14 @@ class ActorController {
     updateActor = async (req, res, next) => {
         const t = await sequelize.transaction();
         try {
-            console.log(req.body)
             const { id, first_name, second_name, birth_date, birth_place, death_place, death_year, movies, country } = req.body;
-            const photo = req.file ? req.file.filename : null;
-
+            const existingActor = await Actor.findByPk(id, { transaction: t, raw: true });
+            if (!existingActor) {
+                await t.rollback();
+                return next(createError(404, 'Actor not found!'));
+            }
+            console.log(existingActor.photo)
+            const photo = req.file ? req.file.filename : existingActor.photo;
             const countryInstance = await Country.findOne({
                 where: { title: country },
                 attributes: ['id'],
@@ -237,7 +234,7 @@ class ActorController {
                 first_name,
                 second_name,
                 birth_date,
-                birth_place: birthLocation.id,
+                birth_place: birthActorLocation.id,
                 death_place: deathActorLocation ?? null,
                 death_year,
                 photo
@@ -276,6 +273,7 @@ class ActorController {
             await t.commit();
             res.status(200).json(updatedActor);
         } catch (error) {
+            console.log(error.message)
             await t.rollback();
             next(error);
         }

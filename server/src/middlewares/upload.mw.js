@@ -53,21 +53,25 @@ const filterImage = (req, file, cb) => {
 module.exports.uploadActorPhoto = multer({
     storage: storageActorPhoto,
     fileFilter: filterImage,
+    limits: { fileSize: 5 * 1024 * 1024 }
 });
 
 module.exports.uploadDirectorPhoto = multer({
     storage: storageDirectorPhoto,
     fileFilter: filterImage,
+    limits: { fileSize: 5 * 1024 * 1024 }
 });
 
 module.exports.uploadStudioLogo = multer({
     storage: storageStudioLogo,
     fileFilter: filterImage,
+    limits: { fileSize: 5 * 1024 * 1024 }
 });
 
 module.exports.uploadMoviePoster = multer({
     storage: storageMoviePoster,
     fileFilter: filterImage,
+    limits: { fileSize: 5 * 1024 * 1024 }
 });
 
 module.exports.MulterError = multer.MulterError;

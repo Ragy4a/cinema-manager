@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Typography, Box, Avatar, CircularProgress, Button, List, ListItem, ListItemAvatar, ListItemText } from '@mui/material';
 import { getActorById, deleteActor } from '../../store/slices/actorsSlice';
+import { pathToImages } from '../../constants';
 
 const ActorsItem = () => {
   const { id } = useParams();
@@ -48,7 +49,7 @@ const ActorsItem = () => {
     <Box mt={8} sx={{ maxWidth: '900px', margin: '0 auto' }}>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
         <Avatar
-          src={photo}
+          src={photo ? `${pathToImages}/actors/${photo}` : `${pathToImages}/actors/default.png`}
           alt={`${first_name} ${second_name}`}
           sx={{ width: 200, height: 200, marginRight: 4, border: '2px solid #ddd' }}
         />
