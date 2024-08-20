@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Typography, Box, Avatar, CircularProgress, Button, List, ListItem, ListItemAvatar, ListItemText } from '@mui/material';
 import { getActorById, deleteActor } from '../../store/slices/actorsSlice';
+import { getAllLocations } from '../../store/slices/locationsSlice';
 import { pathToImages } from '../../constants';
 
 const ActorsItem = () => {
@@ -12,13 +13,15 @@ const ActorsItem = () => {
 
   useEffect(() => {
     dispatch(getActorById(id));
+    dispatch(getAllLocations());
   }, [dispatch, id]);
-  
+
   const actor = useSelector((state) => state.actorsList.actors.find((actor) => actor.id === Number(id)));
+  const locations = useSelector((state) => state.locationsList.locations);
   const status = useSelector((state) => state.actorsList.status);
-  
+
   const handleMovieClick = (movieId) => {
-    navigate(`/movies/${movieId}`)
+    navigate(`/movies/${movieId}`);
   };
 
   const handleDelete = () => {
@@ -39,14 +42,33 @@ const ActorsItem = () => {
     second_name,
     photo,
     birth_date,
-    death_year,
+    death_date,
     birthActorLocation,
     deathActorLocation,
     movies
   } = actor;
 
+  const findCountryForLocation = (locationId) => {
+    const location = locations.find(loc => loc.id === locationId);
+    return location ? `${location.title}, ${location['Country.title']}` : null;
+  };
+
+  const birthPlaceFull = findCountryForLocation(birthActorLocation?.id);
+  const deathPlaceFull = findCountryForLocation(deathActorLocation?.id);
+
   return (
-    <Box mt={8} sx={{ maxWidth: '900px', margin: '0 auto' }}>
+    <Box
+      mt={8}
+      sx={{
+        maxWidth: '1200px',
+        margin: '5dvh auto 0',
+        boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)', 
+        border: '1px solid #ddd',                    
+        borderRadius: '10px',                          
+        padding: 4,                                   
+        bgcolor: '#fff'                                
+      }}
+    >
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
         <Avatar
           src={photo ? `${pathToImages}/actors/${photo}` : `${pathToImages}/actors/default.png`}
@@ -60,17 +82,17 @@ const ActorsItem = () => {
           <Typography variant="subtitle1" color="textSecondary" mt={1}>
             Birth Date: {new Date(birth_date).toLocaleDateString()}
           </Typography>
-          {death_year && (
+          {death_date && (
             <Typography variant="subtitle1" color="textSecondary" mt={1}>
-              Death Year: {new Date(death_year).toLocaleDateString()}
+              Death Date: {new Date(death_date).toLocaleDateString()}
             </Typography>
           )}
           <Typography variant="subtitle1" color="textSecondary" mt={1}>
-            Birth Place: {birthActorLocation?.title}
+            Birth Place: {birthPlaceFull}
           </Typography>
           {deathActorLocation && (
             <Typography variant="subtitle1" color="textSecondary" mt={1}>
-              Death Place: {deathActorLocation?.title}
+              Death Place: {deathPlaceFull}
             </Typography>
           )}
         </Box>
@@ -79,10 +101,14 @@ const ActorsItem = () => {
         <Typography variant="h5" gutterBottom>
           Movies
         </Typography>
-        <List sx={{bgcolor: '#d4d4d4'}}>
+        <List sx={{ bgcolor: '#f0f1f2' }}>
           {movies && movies.length > 0 ? (
             movies.map(({ id, title, poster }) => (
-              <ListItem key={id} sx={{cursor: 'pointer', bgcolor: '#ebebeb', width: '95%', margin: 'auto', marginTop: '10px'}} onClick={() => handleMovieClick(id)}>
+              <ListItem
+                key={id}
+                sx={{ cursor: 'pointer', bgcolor: '#ebebeb', width: '95%', margin: 'auto', marginTop: '10px' }}
+                onClick={() => handleMovieClick(id)}
+              >
                 <ListItemAvatar>
                   <Avatar
                     variant="square"
@@ -91,9 +117,7 @@ const ActorsItem = () => {
                     sx={{ width: 50, height: 75, marginRight: 2 }}
                   />
                 </ListItemAvatar>
-                <ListItemText
-                  primary={title}
-                />
+                <ListItemText primary={title} />
               </ListItem>
             ))
           ) : (
@@ -113,11 +137,7 @@ const ActorsItem = () => {
         >
           Edit
         </Button>
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={handleDelete}
-        >
+        <Button variant="contained" color="secondary" onClick={handleDelete}>
           Delete
         </Button>
       </Box>

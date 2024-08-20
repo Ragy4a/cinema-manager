@@ -44,10 +44,6 @@ const ActorName = styled(Typography)({
   textDecoration: 'none',
 });
 
-const ActorDetails = styled(Typography)({
-  color: '#888',
-});
-
 const ButtonGroup = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
@@ -56,6 +52,7 @@ const ButtonGroup = styled(Box)({
 });
 
 const FilterButton = styled(Button)(({ theme }) => ({
+  height: '60px',
   minHeight: '40px',
   minWidth: '100px',
   marginRight: theme.spacing(1),
@@ -119,7 +116,7 @@ function ActorsList() {
   const count = Math.ceil(total / itemsPerPage);
 
   return (
-    <Box mt={8} sx={{ maxWidth: '1000px', margin: '0 auto', display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <Box mt={8} sx={{ maxWidth: '1000px', margin: '2dvh auto 0', display: 'flex', flexDirection: 'column', height: '100%' }}>
       <Box display="flex" justifyContent="space-between" mb={2}>
         <TextField
           label="Search Actors"

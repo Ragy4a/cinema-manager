@@ -22,7 +22,6 @@ class ActorController {
                 orderClause.push(['birth_date', 'DESC']);
             } else if (filter === 'most-movies') {
                 orderClause.push([sequelize.literal('"movies_count"'), 'DESC']);
-                // пробовал убирать sequelize.literal - но тут он нужен(честно)
             }
             const actors = await Actor.findAndCountAll({
                 where: whereClause,
@@ -110,7 +109,7 @@ class ActorController {
     createActor = async (req, res, next) => {
         const t = await sequelize.transaction();
         try {
-            const { first_name, second_name, birth_date, birth_place, death_place, death_year, movies, country } = req.body;
+            const { first_name, second_name, birth_date, birth_place, death_place, death_date, movies, country } = req.body;
             const photo = req.file ? req.file.filename : null;
             const countryInstance = await Country.findOne({
                 where: { title: country },
@@ -135,7 +134,7 @@ class ActorController {
             let deathActorLocation = null;
             if (death_place) {
                 const locationResult = await Location.findOne({
-                    where: { title: death_place, country_id: countryInstance.id },
+                    where: { title: death_place },
                     attributes: ['id'],
                     transaction: t,
                     raw: true,
@@ -152,7 +151,7 @@ class ActorController {
                 birth_date,
                 birth_place: birthLocation.id,
                 death_place: deathActorLocation ?? null,
-                death_year,
+                death_date,
                 photo
             }, {
                 transaction: t,
@@ -185,13 +184,13 @@ class ActorController {
     updateActor = async (req, res, next) => {
         const t = await sequelize.transaction();
         try {
-            const { id, first_name, second_name, birth_date, birth_place, death_place, death_year, movies, country } = req.body;
+            const { id, first_name, second_name, birth_date, birth_place, death_place, death_date, movies, country } = req.body;
+            console.log(req.body)
             const existingActor = await Actor.findByPk(id, { transaction: t, raw: true });
             if (!existingActor) {
                 await t.rollback();
                 return next(createError(404, 'Actor not found!'));
             }
-            console.log(existingActor.photo)
             const photo = req.file ? req.file.filename : existingActor.photo;
             const countryInstance = await Country.findOne({
                 where: { title: country },
@@ -203,7 +202,6 @@ class ActorController {
                 await t.rollback();
                 return next(createError(404, 'Country not found!'));
             }
-
             const birthActorLocation = await Location.findOne({
                 where: { title: birth_place, country_id: countryInstance.id },
                 attributes: ['id'],
@@ -214,11 +212,10 @@ class ActorController {
                 await t.rollback();
                 return next(createError(404, 'Birth place location not found!'));
             }
-
             let deathActorLocation = null;
             if (death_place) {
                 const locationResult = await Location.findOne({
-                    where: { title: death_place, country_id: countryInstance.id },
+                    where: { title: death_place },
                     attributes: ['id'],
                     transaction: t,
                     raw: true,
@@ -229,14 +226,13 @@ class ActorController {
                 }
                 deathActorLocation = locationResult.id;
             }
-
             const [affectedRows, [updatedActor]] = await Actor.update({
                 first_name,
                 second_name,
                 birth_date,
                 birth_place: birthActorLocation.id,
                 death_place: deathActorLocation ?? null,
-                death_year,
+                death_date,
                 photo
             }, {
                 where: { id },

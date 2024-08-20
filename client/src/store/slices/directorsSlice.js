@@ -6,14 +6,26 @@ const initialState = {
     directors: [],
     status: 'idle',
     error: null,
+    total: 0,
+    filteredDirectors: []
 };
 
 export const getAllDirectors = createAsyncThunk(
     `${DIRECTORS_SLICE_NAME}/getAllDirectors`,
-    async (_, { rejectWithValue }) => {
+    async ({ page = 1, itemsPerPage = 5, search, filter }, { rejectWithValue }) => {
         try {
-            const { status, data } = await api.get(`${DIRECTORS_SLICE_NAME}/`);
-            if(status >= 400) throw new Error(`Error with getting directors. Error status is ${status}.`);
+            const params = {
+                page,
+                result: itemsPerPage,
+            };
+            if (search) {
+                params.search = search;
+            }
+            if (filter) {
+                params.filter = filter;
+            }
+            const { status, data } = await api.get(`${DIRECTORS_SLICE_NAME}/`, { params });
+            if (status >= 400) throw new Error(`Error with getting directors. Error status is ${status}.`);
             return data;
         } catch (error) {
             return rejectWithValue(error.message);
@@ -32,30 +44,45 @@ export const getDirectorById = createAsyncThunk(
             return rejectWithValue(error.message);
         }
     }
-)
+);
 
 export const createDirector = createAsyncThunk(
     `${DIRECTORS_SLICE_NAME}/createDirector`,
-    async (director, { rejectWithValue }) => {
+    async (formData, { rejectWithValue }) => {
         try {
-            const { status, data } = await api.post(`${DIRECTORS_SLICE_NAME}/`, director);
-            if (status >= 400) throw new Error(`Error with creating director. Error status is ${status}.`)
+            const { status, data } = await api.post(`${DIRECTORS_SLICE_NAME}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            if (status >= 400) throw new Error(`Error with creating director. Error status is ${status}.`);
             return data;
         } catch (error) {
-            return rejectWithValue(error.message);
+            return rejectWithValue(error.response.data);
         }
     }
 );
 
 export const updateDirector = createAsyncThunk(
     `${DIRECTORS_SLICE_NAME}/updateDirector`,
-    async (director, { rejectWithValue }) => {
+    async (formData, { rejectWithValue }) => {
         try {
-            const { status, data } = await api.put(`${DIRECTORS_SLICE_NAME}/${director.id}`, director);
-            if (status >= 400) throw new Error(`Error with editing director. Error status is ${status}.`)
+            for (let pair of formData.entries()) {
+                if (pair[0] === 'photo') {
+                    console.log(`${pair[0]}: ${pair[1].name}`);
+                } else {
+                    console.log(`${pair[0]}: ${pair[1]}`);
+                }
+            }
+            const { status, data } = await api.put(`${DIRECTORS_SLICE_NAME}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            if (status >= 400) throw new Error(`Error with updating director. Error status is ${status}.`);
             return data;
         } catch (error) {
-            return rejectWithValue(error.message);
+            return rejectWithValue(error.response.data);
         }
     }
 );
@@ -63,14 +90,14 @@ export const updateDirector = createAsyncThunk(
 export const deleteDirector = createAsyncThunk(
     `${DIRECTORS_SLICE_NAME}/deleteDirector`,
     async (directorId, { rejectWithValue }) => {
-      try {
-        const { status } = await api.delete(`${DIRECTORS_SLICE_NAME}/${directorId}`);
-        if(status >= 400) throw new Error(`Error deleting director with ID ${directorId}. Error status is ${status}.`);
-        return directorId;
-      } catch (error) {
-        return rejectWithValue(error.message);
-      }
-  }
+        try {
+            const { status } = await api.delete(`${DIRECTORS_SLICE_NAME}/${directorId}`);
+            if (status >= 400) throw new Error(`Error deleting director with ID ${directorId}. Error status is ${status}.`);
+            return directorId;
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
 );
 
 const directorsSlice = createSlice({
@@ -79,12 +106,13 @@ const directorsSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(getAllDirectors.fulfilled, (state, { payload }) => {
-                state.directors = payload;
+                state.total = payload.total;
+                state.directors = payload.directors;
                 state.status = 'fulfilled';
                 state.error = null;
             })
             .addCase(getDirectorById.fulfilled, (state, { payload }) => {
-                state.directors = payload;
+                state.directors = [payload];
                 state.status = 'fulfilled';
                 state.error = null;
             })
@@ -95,7 +123,8 @@ const directorsSlice = createSlice({
             })
             .addCase(updateDirector.fulfilled, (state, { payload }) => {
                 state.directors = state.directors.map((director) =>
-                director.id === payload.id ? payload : director);
+                    director.id === payload.id ? payload : director
+                );
                 state.status = 'fulfilled';
                 state.error = null;
             })
@@ -113,7 +142,7 @@ const directorsSlice = createSlice({
             .addCase(getDirectorById.rejected, setRejected)
             .addCase(createDirector.rejected, setRejected)
             .addCase(updateDirector.rejected, setRejected)
-            .addCase(deleteDirector.rejected, setRejected)
+            .addCase(deleteDirector.rejected, setRejected);
     }
 });
 

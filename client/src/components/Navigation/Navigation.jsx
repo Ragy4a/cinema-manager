@@ -37,13 +37,13 @@ function NavBar() {
         <RecentActorsIcon fontSize="large" />
         <span style={{ marginLeft: '15px' }}>Actors</span>
       </NavItem>
-      <NavItem button component={Link} to='/movies'>
-        <MovieCreationIcon fontSize="large" />
-        <span style={{ marginLeft: '15px' }}>Movies</span>
-      </NavItem>
       <NavItem button component={Link} to='/directors'>
         <PaidRoundedIcon fontSize="large" />
         <span style={{ marginLeft: '15px' }}>Directors</span>
+      </NavItem>
+      <NavItem button component={Link} to='/movies'>
+        <MovieCreationIcon fontSize="large" />
+        <span style={{ marginLeft: '15px' }}>Movies</span>
       </NavItem>
       <NavItem button component={Link} to='/studios'>
         <CameraIndoorRoundedIcon fontSize="large" />

@@ -28,7 +28,6 @@ const ActorForm = () => {
   const id = (urlId && urlId !== ':id') ? Number(urlId) : false;
 
   const [filteredBirthLocations, setFilteredBirthLocations] = useState([]);
-  const [filteredDeathLocations, setFilteredDeathLocations] = useState([]);
   const [photoFile, setPhotoFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [selectedMovies, setSelectedMovies] = useState([]);
@@ -63,7 +62,6 @@ const ActorForm = () => {
       if (birthCountryId) {
         const birthCountryLocations = locations.filter(location => location.country_id === birthCountryId);
         setFilteredBirthLocations(birthCountryLocations);
-        setFilteredDeathLocations(birthCountryLocations);
       }
     }
   }, [actor, locations]);
@@ -71,24 +69,22 @@ const ActorForm = () => {
   const handleCountryChange = (event, setFieldValue) => {
     const selectedCountry = countries.find(country => country.id === event.target.value);
     setFieldValue('country', selectedCountry ? selectedCountry.title : '');
-
+  
     const filteredLocations = locations.filter(location => location.country_id === selectedCountry?.id);
     setFilteredBirthLocations(filteredLocations);
-    setFilteredDeathLocations(filteredLocations);
     setFieldValue('birth_place', '');
-    setFieldValue('death_place', '');
   };
-
+  
   const handleBirthPlaceChange = (event, setFieldValue) => {
     const selectedLocation = filteredBirthLocations.find(location => location.id === event.target.value);
     setFieldValue('birth_place', selectedLocation ? selectedLocation.title : '');
   };
-
+  
   const handleDeathPlaceChange = (event, setFieldValue) => {
-    const selectedLocation = filteredDeathLocations.find(location => location.id === event.target.value);
+    const selectedLocation = locations.find(location => location.id === event.target.value);
     setFieldValue('death_place', selectedLocation ? selectedLocation.title : '');
   };
-
+  
   const handlePhotoChange = (event) => {
     const file = event.currentTarget.files[0];
     setPhotoFile(file);
@@ -107,33 +103,32 @@ const ActorForm = () => {
   };
 
   const handleSubmit = (values) => {
-    const actorData = {
-      ...values,
-      movies: selectedMovies
-    };
-    console.log(actorData)
-    console.log(photoFile)
-    if (photoFile) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        actorData.photo = reader.result;
-        console.log(actorData.photo)
-        if (id) {
-          dispatch(updateActor(actorData));
-        } else {
-          dispatch(createActor(actorData));
-        }
-        // navigate('/actors');
-      };
-      reader.readAsDataURL(photoFile);
-    } else {
-      if (id) {
-        dispatch(updateActor(actorData));
-      } else {
-        dispatch(createActor(actorData));
-      }
-      // navigate('/actors');
+    const formData = new FormData();
+    formData.append('id', id);
+    formData.append('first_name', values.first_name);
+    formData.append('second_name', values.second_name);
+    formData.append('birth_date', values.birth_date ? values.birth_date.toISOString() : '');
+    formData.append('country', values.country);
+    formData.append('birth_place', values.birth_place);
+    for (const [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`);
     }
+    if (values.death_date) {
+      formData.append('death_date', values.death_date.toISOString());
+    }
+    if (values.death_place) {
+      formData.append('death_place', values.death_place);
+    }
+    selectedMovies.forEach(movie => formData.append('movies[]', movie));
+    if (photoFile) {
+      formData.append('photo', photoFile);
+    }
+    if (id) {
+      dispatch(updateActor(formData));
+    } else {
+      dispatch(createActor(formData));
+    }
+    navigate('/actors');
   };
 
   return (
@@ -163,7 +158,7 @@ const ActorForm = () => {
               value={values.first_name}
             />
             <ErrorMessage name="first_name" component={ErrorMessageStyled} />
-
+  
             <Field
               as={TextField}
               name="second_name"
@@ -174,17 +169,17 @@ const ActorForm = () => {
               value={values.second_name}
             />
             <ErrorMessage name="second_name" component={ErrorMessageStyled} />
-
+  
             <DatePicker
               label="Birth Date"
-              value={values.birth_date}
+              value={values.birth_date ? new Date(values.birth_date) : null}
               onChange={(newValue) => setFieldValue('birth_date', newValue)}
               textField={(params) => (
                 <TextField {...params} name="birth_date" fullWidth margin="normal" />
               )}
             />
             <ErrorMessage name="birth_date" component={ErrorMessageStyled} />
-
+  
             <FormControl fullWidth margin="normal">
               <InputLabel>Country</InputLabel>
               <Select
@@ -199,7 +194,7 @@ const ActorForm = () => {
                 ))}
               </Select>
             </FormControl>
-
+  
             <FormControl fullWidth margin="normal">
               <InputLabel>Birth Place</InputLabel>
               <Select
@@ -222,29 +217,28 @@ const ActorForm = () => {
               </Select>
             </FormControl>
             <ErrorMessage name="birth_place" component={ErrorMessageStyled} />
-
+  
             <DatePicker
               label="Death Year"
-              value={values.death_date || null}
+              value={values.death_date ? new Date(values.death_date) : null}
               onChange={(newValue) => setFieldValue('death_date', newValue)}
               textField={(params) => (
                 <TextField {...params} name="death_date" fullWidth margin="normal" />
               )}
             />
             <ErrorMessage name="death_date" component={ErrorMessageStyled} />
-
+  
             <FormControl fullWidth margin="normal">
               <InputLabel>Death Place</InputLabel>
               <Select
-                value={filteredDeathLocations.find(location => location.title === values.death_place)?.id || ''}
+                value={locations.find(location => location.title === values.death_place)?.id || ''}
                 onChange={(event) => handleDeathPlaceChange(event, setFieldValue)}
                 label="Death Place"
-                disabled={!filteredDeathLocations.length}
               >
-                {filteredDeathLocations.length > 0 ? (
-                  filteredDeathLocations.map((location) => (
+                {locations.length > 0 ? (
+                  locations.map((location) => (
                     <MenuItem key={location.id} value={location.id}>
-                      {location.title}
+                      {location.title}, {location['Country.title']}
                     </MenuItem>
                   ))
                 ) : (
@@ -255,7 +249,7 @@ const ActorForm = () => {
               </Select>
             </FormControl>
             <ErrorMessage name="death_place" component={ErrorMessageStyled} />
-
+  
             <Box sx={{ mt: 3 }}>
               <Typography variant="subtitle1" gutterBottom>Upload Photo</Typography>
               {preview && (
@@ -273,7 +267,7 @@ const ActorForm = () => {
                 />
               </Button>
             </Box>
-
+  
             <Box sx={{ mt: 3 }}>
               <Typography variant="subtitle1" gutterBottom>Movies</Typography>
               <FormControl fullWidth>
@@ -299,7 +293,7 @@ const ActorForm = () => {
                 ))}
               </Box>
             </Box>
-
+  
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
               <Button type="submit" variant="contained" color="primary" disabled={!isValid}>
                 {id ? 'Update' : 'Create'}
@@ -312,7 +306,7 @@ const ActorForm = () => {
         </Form>
       )}
     </Formik>
-  );
+  );  
 };
 
 export default ActorForm;

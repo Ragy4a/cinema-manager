@@ -10,7 +10,8 @@ module.exports = (sequelize, DataTypes) => {
         as: 'Actors'
       });
       Movie.belongsToMany(models.Director, { 
-        through: 'movies_directors' 
+        through: 'movies_directors',
+        as: 'Directors'
       });
     }
   }

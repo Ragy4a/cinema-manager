@@ -17,6 +17,7 @@ router
 
 router
     .route('/:id')
+        .get(directorController.getDirectorById)
         .delete(directorController.deleteDirector);
 
 module.exports = router;

@@ -47,31 +47,45 @@ export const getActorById = createAsyncThunk(
 );
 
 export const createActor = createAsyncThunk(
-    `${ACTORS_SLICE_NAME}/createActor`,
-    async (actor, { rejectWithValue }) => {
-        try {
-            const { status, data } = await api.post(`${ACTORS_SLICE_NAME}`, actor);
-            if (status >= 400) throw new Error(`Error with creating actor. Error status is ${status}.`);
-            console.log(data)
-            return data;
-        } catch (error) {
-            return rejectWithValue(error.message);
-        }
+    'actors/createActor',
+    async (formData, { rejectWithValue }) => {
+      try {
+        const { status, data } = await api.post(`${ACTORS_SLICE_NAME}`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        if (status >= 400) throw new Error(`Error with creating actor. Error status is ${status}.`);
+        return data;
+      } catch (error) {
+        return rejectWithValue(error.response.data);
+      }
     }
-);
-
-export const updateActor = createAsyncThunk(
-    `${ACTORS_SLICE_NAME}/updateActor`,
-    async (actor, { rejectWithValue }) => {
-        try {
-            const { status, data } = await api.put(`${ACTORS_SLICE_NAME}`, actor);
-            if (status >= 400) throw new Error(`Error with editing actor. Error status is ${status}.`);
-            return data;
-        } catch (error) {
-            return rejectWithValue(error.message);
-        }
+  );
+  
+  export const updateActor = createAsyncThunk(
+    'actors/updateActor',
+    async (formData, { rejectWithValue }) => {
+      try {
+        for (let pair of formData.entries()) {
+            if (pair[0] === 'photo') {
+              console.log(`${pair[0]}: ${pair[1].name}`);
+            } else {
+              console.log(`${pair[0]}: ${pair[1]}`);
+            }
+          }
+        const { status, data } = await api.put(`${ACTORS_SLICE_NAME}`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        if (status >= 400) throw new Error(`Error with updating actor. Error status is ${status}.`);
+        return data;
+      } catch (error) {
+        return rejectWithValue(error.response.data);
+      }
     }
-);
+  );  
 
 export const deleteActor = createAsyncThunk(
     `${ACTORS_SLICE_NAME}/deleteActor`,

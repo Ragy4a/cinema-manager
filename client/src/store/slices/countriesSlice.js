@@ -2,6 +2,12 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../../api';
 import { COUNTRY_SLICE_NAME, setPending, setRejected } from '../../constants';
 
+const initialState = {
+    countries: [],
+    status: 'idle',
+    error: null,
+};
+
 export const getAllCountries = createAsyncThunk(
     `${COUNTRY_SLICE_NAME}/getAllCountries`,
     async (_, { rejectWithValue }) => {
@@ -56,11 +62,7 @@ export const deleteCountry = createAsyncThunk(
 
 const countrySlice = createSlice({
     name: COUNTRY_SLICE_NAME,
-    initialState: {
-        countries: [],
-        status: 'idle',
-        error: null,
-    },
+    initialState,
     extraReducers: (builder) => {
         builder
             .addCase(getAllCountries.fulfilled, (state, { payload }) => {
