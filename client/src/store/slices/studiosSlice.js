@@ -73,6 +73,19 @@ export const deleteStudio = createAsyncThunk(
   }
 );
 
+export const selectStudios = createAsyncThunk(
+    `${STUDIOS_SLICE_NAME}/selectStudios`,
+    async (_, { rejectWithValue }) => {
+        try {
+            const { status, data } = await api.get(`${STUDIOS_SLICE_NAME}/selectStudios`);
+            if (status >= 400) throw new Error(`Error with getting studios for select. Error status is ${status}.`);
+            return data;
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+)
+
 const studiosSlice = createSlice({
     name: STUDIOS_SLICE_NAME,
     initialState,
@@ -104,16 +117,23 @@ const studiosSlice = createSlice({
                 state.status = 'fulfilled';
                 state.error = null;
             })
+            .addCase(selectStudios.fulfilled, (state, { payload }) => {
+                state.studios = payload;
+                state.status = 'fulfilled';
+                state.error = null;
+            })
             .addCase(getStudios.pending, setPending)
             .addCase(getStudioById.pending, setPending)
             .addCase(createStudio.pending, setPending)
             .addCase(editStudio.pending, setPending)
             .addCase(deleteStudio.pending, setPending)
+            .addCase(selectStudios.pending, setPending)
             .addCase(getStudios.rejected, setRejected)
             .addCase(getStudioById.rejected, setRejected)
             .addCase(createStudio.rejected, setRejected)
             .addCase(editStudio.rejected, setRejected)
             .addCase(deleteStudio.rejected, setRejected)
+            .addCase(selectStudios.rejected, setRejected)
     }
 })
 

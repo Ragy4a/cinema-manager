@@ -6,13 +6,20 @@ const initialState = {
     movies: [],
     status: 'idle',
     error: null,
-}
+    total: 0,
+};
 
 export const getAllMovies = createAsyncThunk(
     `${MOVIES_SLICE_NAME}/getAllMovies`,
-    async (_, { rejectWithValue }) => {
+    async ({ search, filter, page = 1, itemsPerPage = 10 }, { rejectWithValue }) => {
         try {
-            const { status, data } = await api.get(`${MOVIES_SLICE_NAME}/`);
+            const params = {
+                search,
+                filter,
+                page,
+                itemsPerPage
+            };
+            const { status, data } = await api.get(`${MOVIES_SLICE_NAME}/`, { params });
             if (status >= 400) throw new Error(`Error with getting movies. Error status is ${status}.`);
             return data;
         } catch (error) {
@@ -40,6 +47,7 @@ export const createMovie = createAsyncThunk(
         try {
             const { status, data } = await api.post(`${MOVIES_SLICE_NAME}/`, movie);
             if (status >= 400) throw new Error(`Error with creating movie. Error status is ${status}.`);
+            console.log(data)
             return data;
         } catch (error) {
             return rejectWithValue(error.message);
@@ -47,11 +55,11 @@ export const createMovie = createAsyncThunk(
     }
 );
 
-export const editMovie = createAsyncThunk(
-    `${MOVIES_SLICE_NAME}/editMovie`,
+export const updateMovie = createAsyncThunk(
+    `${MOVIES_SLICE_NAME}/updateMovie`,
     async (movie, { rejectWithValue }) => {
         try {
-            const { status, data } = await api.put(`${MOVIES_SLICE_NAME}/${movie.id}`, movie);
+            const { status, data } = await api.put(`${MOVIES_SLICE_NAME}`, movie);
             if (status >= 400) throw new Error(`Error with editing movie. Error status is ${status}.`);
             return data;
         } catch (error) {
@@ -73,18 +81,32 @@ export const deleteMovie = createAsyncThunk(
     }
 );
 
+export const selectMovies = createAsyncThunk(
+    `${MOVIES_SLICE_NAME}/selectMovies`,
+    async(_, { rejectWithValue }) => {
+        try {
+            const { status, data } = await api.get(`${MOVIES_SLICE_NAME}/selectMovies`);
+            if (status >= 400) throw new Error(`Error with getting movies for select. Error status is ${status}.`)
+            return data;
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+)
+
 const moviesSlice = createSlice({
     name: MOVIES_SLICE_NAME,
     initialState,
     extraReducers: (builder) => {
         builder
             .addCase(getAllMovies.fulfilled, (state, { payload }) => {
-                state.movies = payload;
+                state.movies = payload.movies;
+                state.total = payload.total;
                 state.status = 'fulfilled';
                 state.error = null;
             })
             .addCase(getMovieById.fulfilled, (state, { payload }) => {
-                state.movies = payload;
+                state.movies = [payload];
                 state.status = 'fulfilled';
                 state.error = null;
             })
@@ -93,7 +115,7 @@ const moviesSlice = createSlice({
                 state.status = 'fulfilled';
                 state.error = null;
             })
-            .addCase(editMovie.fulfilled, (state, { payload }) => {
+            .addCase(updateMovie.fulfilled, (state, { payload }) => {
                 state.movies = state.movies.map((movie) =>
                 movie.id === payload.id ? payload : movie);
                 state.status = 'fulfilled';
@@ -104,16 +126,23 @@ const moviesSlice = createSlice({
                 state.status = 'fulfilled';
                 state.error = null;
             })
+            .addCase(selectMovies.fulfilled, (state, { payload }) => {
+                state.movies = payload
+                state.status = 'fulfilled';
+                state.error = null;
+            })
             .addCase(getAllMovies.pending, setPending)
             .addCase(getMovieById.pending, setPending)
             .addCase(createMovie.pending, setPending)
-            .addCase(editMovie.pending, setPending)
+            .addCase(updateMovie.pending, setPending)
             .addCase(deleteMovie.pending, setPending)
+            .addCase(selectMovies.pending, setPending)
             .addCase(getAllMovies.rejected, setRejected)
             .addCase(getMovieById.rejected, setRejected)
             .addCase(createMovie.rejected, setRejected)
-            .addCase(editMovie.rejected, setRejected)
+            .addCase(updateMovie.rejected, setRejected)
             .addCase(deleteMovie.rejected, setRejected)
+            .addCase(selectMovies.rejected, setRejected)
     }
 })
 

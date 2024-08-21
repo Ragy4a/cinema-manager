@@ -47,7 +47,7 @@ const DirectorsItem = () => {
     deathDirectorLocation,
     movies
   } = director;
-  console.log(death_date)
+
   const findCountryForLocation = (locationId) => {
     const location = locations.find(loc => loc.id === locationId);
     return location ? `${location.title}, ${location['Country.title']}` : null;

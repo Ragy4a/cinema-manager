@@ -10,6 +10,9 @@ const {
 } = require('../middlewares');
 
 router
+    .route('/selectActors')
+        .get(actorController.selectActors);
+router
     .route('/')
     .get(paginateData, actorController.getAllActors)
     .post(uploadActorPhoto.single('photo'), validatePerson, actorController.createActor)

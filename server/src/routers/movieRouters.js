@@ -10,6 +10,9 @@ const {
 } = require('../middlewares');
 
 router
+    .route('/selectMovies')
+        .get(movieController.selectMovies);
+router
     .route('/')
         .get(paginateData, movieController.getAllMovies)
         .post(uploadMoviePoster.single('poster'), validateMovie, movieController.createMovie)
@@ -17,6 +20,7 @@ router
 
 router
     .route('/:id')
+        .get(movieController.getMovieById)
         .delete(movieController.deleteMovie);
 
 module.exports = router;

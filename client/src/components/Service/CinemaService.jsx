@@ -15,7 +15,7 @@ function CinemaService() {
         <Route path='/actors/edit/:id' element={<ActorsForm />} />
         <Route path='/directors/new/:id' element={<DirectorsForm />} />
         <Route path='/directors/edit/:id' element={<DirectorsForm />} />
-        <Route path='/movies/add-form' element={<MoviesForm />} />
+        <Route path='/movies/new/:id' element={<MoviesForm />} />
         <Route path='/movies/edit/:id' element={<MoviesForm />} />
         <Route path='/studios/add-form' element={<StudiosForm />} />
         <Route path='/studios/edit/:id' element={<StudiosForm />} />

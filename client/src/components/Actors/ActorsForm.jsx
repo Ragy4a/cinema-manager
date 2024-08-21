@@ -6,7 +6,7 @@ import { TextField, Button, Select, MenuItem, InputLabel, FormControl, Box, Avat
 import { getActorById, createActor, updateActor } from '../../store/slices/actorsSlice';
 import { getAllCountries } from '../../store/slices/countriesSlice';
 import { getAllLocations } from '../../store/slices/locationsSlice';
-import { getAllMovies } from '../../store/slices/moviesSlice';
+import { selectMovies } from '../../store/slices/moviesSlice';
 import { DatePicker } from '@mui/x-date-pickers';
 import { PersonSchema } from '../../utils/validationSchemas';
 import { createEmptyPerson, pathToImages } from '../../constants';
@@ -42,7 +42,7 @@ const ActorForm = () => {
   useEffect(() => {
     dispatch(getAllCountries());
     dispatch(getAllLocations());
-    dispatch(getAllMovies());
+    dispatch(selectMovies());
 
     if (id) {
       dispatch(getActorById(id));

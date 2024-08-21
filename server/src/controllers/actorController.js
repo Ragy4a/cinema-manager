@@ -244,7 +244,7 @@ class ActorController {
                 await t.rollback();
                 return next(createError(404, 'Actor not found!'));
             }
-
+            // console.log(movies)
             if (movies && movies.length > 0) {
                 await MoviesActors.destroy({
                     where: { actor_id: id },
@@ -265,7 +265,6 @@ class ActorController {
                     }, { transaction: t });
                 }
             }
-
             await t.commit();
             res.status(200).json(updatedActor);
         } catch (error) {
@@ -302,6 +301,21 @@ class ActorController {
             next(error);
         }
     };
+
+    selectActors = async (req, res, next) => {
+        try {
+            const actors = await Actor.findAll({
+                attributes: ['id', 'first_name', 'second_name'],
+                raw: true,
+            })
+            if(!actors.length) {
+                return next(createError(404, 'Actors not found!'))
+            };
+            res.status(200).json(actors);
+        } catch (error) {
+            next(error);
+        }
+    }
 
 }
 

@@ -100,6 +100,19 @@ export const deleteDirector = createAsyncThunk(
     }
 );
 
+export const selectDirectors = createAsyncThunk(
+    `${DIRECTORS_SLICE_NAME}/selectDirectors`,
+    async (_, { rejectWithValue }) => {
+        try {
+            const { status, data } = await api.get(`${DIRECTORS_SLICE_NAME}/selectDirectors`);
+            if(status >= 400) throw new Error(`Error with getting directors for select. Error status is ${status}.`);
+            return data;
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+)
+
 const directorsSlice = createSlice({
     name: DIRECTORS_SLICE_NAME,
     initialState,
@@ -133,16 +146,23 @@ const directorsSlice = createSlice({
                 state.status = 'fulfilled';
                 state.error = null;
             })
+            .addCase(selectDirectors.fulfilled, (state, { payload }) => {
+                state.directors = payload;
+                state.status = 'fulfilled';
+                state.error = null;
+            })
             .addCase(getAllDirectors.pending, setPending)
             .addCase(getDirectorById.pending, setPending)
             .addCase(createDirector.pending, setPending)
             .addCase(updateDirector.pending, setPending)
             .addCase(deleteDirector.pending, setPending)
+            .addCase(selectDirectors.pending, setPending)
             .addCase(getAllDirectors.rejected, setRejected)
             .addCase(getDirectorById.rejected, setRejected)
             .addCase(createDirector.rejected, setRejected)
             .addCase(updateDirector.rejected, setRejected)
-            .addCase(deleteDirector.rejected, setRejected);
+            .addCase(deleteDirector.rejected, setRejected)
+            .addCase(selectDirectors.rejected, setRejected)
     }
 });
 

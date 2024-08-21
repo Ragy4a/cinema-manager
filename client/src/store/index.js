@@ -7,6 +7,7 @@ import moviesReducer from './slices/moviesSlice';
 import studiosReducer from './slices/studiosSlice';
 import countriesReducer from './slices/countriesSlice';
 import locationsReducer from './slices/locationsSlice';
+import genresReducer from './slices/genresSlice';
 
 export default configureStore({
     reducer: {
@@ -16,6 +17,7 @@ export default configureStore({
         studiosList: studiosReducer,
         countriesList: countriesReducer,
         locationsList: locationsReducer,
+        genresList: genresReducer,
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(logger)
 })

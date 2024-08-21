@@ -300,6 +300,21 @@ class DirectorController {
         }
     };
 
+    selectDirectors = async (req, res, next) => {
+        try {
+            const directors = await Director.findAll({
+                attributes: ['id', 'first_name', 'second_name'],
+                raw: true,
+            });
+            if(!directors.length) {
+                return next(createError(404, 'Directors not found!'))
+            };
+            res.status(200).json(directors);
+        } catch (error) {
+            next(error);
+        }
+    }
+
 }
 
 module.exports = new DirectorController();

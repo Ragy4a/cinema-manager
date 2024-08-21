@@ -10,6 +10,9 @@ const {
 } = require('../middlewares');
 
 router
+    .route('/selectStudios')
+        .get(studioController.selectStudios)
+router
     .route('/')
         .get(paginateData, studioController.getAllStudios)
         .post(uploadStudioLogo.single('logo'), validateStudio, studioController.createStudio)

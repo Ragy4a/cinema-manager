@@ -10,6 +10,9 @@ const {
 } = require('../middlewares');
 
 router
+    .route('/selectDirectors')
+        .get(directorController.selectDirectors);
+router
     .route('/')
         .get(paginateData, directorController.getAllDirectors)
         .post(uploadDirectorPhoto.single('photo'), validatePerson, directorController.createDirector)

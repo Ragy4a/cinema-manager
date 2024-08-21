@@ -1,5 +1,5 @@
 const createError = require('http-errors');
-const { Studio, Location, sequelize } = require('../database/models');
+const { Studio, Location, Country, sequelize } = require('../database/models');
 
 class StudioController {
 
@@ -102,6 +102,34 @@ class StudioController {
         } catch (error) {
             console.log(error.message);
             await t.rollback();
+            next(error);
+        }
+    }
+
+    selectStudios = async (req, res, next) => {
+        try {
+            const studios = await Studio.findAll({
+                attributes: ['id', 'title'],
+                include: [
+                    {
+                        model: Location,
+                        as: 'Location',
+                        attributes: [],
+                        include: {
+                            model: Country,
+                            as: 'Country',
+                            attributes: ['id']
+                        }
+                    }
+                ],
+                raw: true,
+            });
+            if(!studios.length) {
+                return next(createError(404, 'Studios not found!'));
+            };
+            res.status(200).json(studios);
+        } catch (error) {
+            console.log(error.message)
             next(error);
         }
     }

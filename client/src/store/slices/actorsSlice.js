@@ -100,6 +100,19 @@ export const deleteActor = createAsyncThunk(
     }
 );
 
+export const selectActors = createAsyncThunk(
+  `${ACTORS_SLICE_NAME}/selectActors`,
+  async (_, { rejectWithValue }) => {
+    try {
+      const { status, data } = await api.get(`${ACTORS_SLICE_NAME}/selectActors`);
+      if(status >= 400) throw new Error(`Error with getting actors for select. Error status is ${status}.`);
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+)
+
 const actorsSlice = createSlice({
     name: ACTORS_SLICE_NAME,
     initialState,
@@ -133,16 +146,23 @@ const actorsSlice = createSlice({
                 state.status = 'fulfilled';
                 state.error = null;
             })
+            .addCase(selectActors.fulfilled, (state, { payload }) => {
+              state.actors = payload;
+              state.status = 'fulfilled';
+              state.error = null;
+            })
             .addCase(getAllActors.pending, setPending)
             .addCase(getActorById.pending, setPending)
             .addCase(createActor.pending, setPending)
             .addCase(updateActor.pending, setPending)
             .addCase(deleteActor.pending, setPending)
+            .addCase(selectActors.pending, setPending)
             .addCase(getAllActors.rejected, setRejected)
             .addCase(getActorById.rejected, setRejected)
             .addCase(createActor.rejected, setRejected)
             .addCase(updateActor.rejected, setRejected)
             .addCase(deleteActor.rejected, setRejected)
+            .addCase(selectActors.rejected, setRejected)
     }
 });
 

@@ -6,6 +6,7 @@ export const MOVIES_SLICE_NAME = 'movies';
 export const STUDIOS_SLICE_NAME = 'studios';
 export const COUNTRY_SLICE_NAME = 'countries';
 export const LOCATION_SLICE_NAME = 'locations';
+export const GENRE_SLICE_NAME = 'genres';
 
 export const setPending = (state) => {
   state.status = 'pending';
@@ -28,7 +29,21 @@ export const createEmptyPerson = () => {
     photo: '',
     movies: [],
   }
-}
+};
+
+export const createEmptyMovie = () => {
+  return {
+    title: '',
+    release_year: null,
+    country: '',
+    genre: '',
+    studio: '',
+    poster: '',
+    actors: [],
+    directors: [],
+  }
+};
+
 export const pathToImages = 'http://localhost:5000/images';
 export const posters =[
   { id: 1, url: "https://pluggedin.ru/images/upload/1655926482.jpg", alt: 'poster', title: 'House of Dragon' },

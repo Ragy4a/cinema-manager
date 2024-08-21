@@ -12,7 +12,7 @@ export const getAllCountries = createAsyncThunk(
     `${COUNTRY_SLICE_NAME}/getAllCountries`,
     async (_, { rejectWithValue }) => {
         try {
-            const { status, data } = await api.get('/countries');
+            const { status, data } = await api.get(`${COUNTRY_SLICE_NAME}`);
             if (status >= 400) throw new Error(`Error fetching countries. Status: ${status}`);
             return data;
         } catch (error) {
@@ -25,7 +25,7 @@ export const createCountry = createAsyncThunk(
     `${COUNTRY_SLICE_NAME}/createCountry`,
     async (country, { rejectWithValue }) => {
         try {
-            const { status, data } = await api.post('/countries', country);
+            const { status, data } = await api.post(`${COUNTRY_SLICE_NAME}`, country);
             if (status >= 400) throw new Error(`Error creating country. Status: ${status}`);
             return data;
         } catch (error) {
@@ -38,7 +38,7 @@ export const updateCountry = createAsyncThunk(
     `${COUNTRY_SLICE_NAME}/updateCountry`,
     async (country, { rejectWithValue }) => {
         try {
-            const { status, data } = await api.put(`/countries/${country.id}`, country);
+            const { status, data } = await api.put(`${COUNTRY_SLICE_NAME}`, country);
             if (status >= 400) throw new Error(`Error updating country. Status: ${status}`);
             return data;
         } catch (error) {
@@ -51,7 +51,7 @@ export const deleteCountry = createAsyncThunk(
     `${COUNTRY_SLICE_NAME}/deleteCountry`,
     async (id, { rejectWithValue }) => {
         try {
-            const { status } = await api.delete(`/countries/${id}`);
+            const { status } = await api.delete(`${COUNTRY_SLICE_NAME}/${id}`);
             if (status >= 400) throw new Error(`Error deleting country. Status: ${status}`);
             return id;
         } catch (error) {
