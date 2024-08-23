@@ -44,6 +44,17 @@ export const createEmptyMovie = () => {
   }
 };
 
+export const createEmptyStudio = () => {
+  return {
+    title: '',
+    found_year: '',
+    country: '',
+    location: '',
+    movies: [],
+    logo: null,
+  };
+};
+
 export const pathToImages = 'http://localhost:5000/images';
 export const posters =[
   { id: 1, url: "https://pluggedin.ru/images/upload/1655926482.jpg", alt: 'poster', title: 'House of Dragon' },

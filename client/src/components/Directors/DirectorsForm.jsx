@@ -136,6 +136,7 @@ const DirectorsForm = () => {
       initialValues={director ? {
         ...director,
         birth_date: director.birth_date ? new Date(director.birth_date) : null,
+        death_date: director.death_date ? new Date(director.death_date) : null,
         country: director.birthDirectorLocation?.Country?.title || '',
         birth_place: director.birthDirectorLocation?.title || '',
         death_place: director.deathDirectorLocation?.title || '',

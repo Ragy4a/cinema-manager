@@ -6,13 +6,25 @@ const initialState = {
     studios: [],
     status: 'idle',
     error: null,
+    total: null,
 }
 
-export const getStudios = createAsyncThunk(
-    `${STUDIOS_SLICE_NAME}/getStudios`,
-    async (_, { rejectWithValue }) => {
+export const getAllStudios = createAsyncThunk(
+    `${STUDIOS_SLICE_NAME}/getAllStudios`,
+    async ({ search, filter, page = 1, itemsPerPage = 10 }, { rejectWithValue }) => {
         try {
-            const { status, data } = await api.get(`${STUDIOS_SLICE_NAME}/`);
+            const params = {
+                page,
+                result: itemsPerPage,
+            };
+            console.log(search)
+            if (search) {
+                params.search = search;
+            }
+            if (filter) {
+                params.filter = filter;
+            }
+            const { status, data } = await api.get(`${STUDIOS_SLICE_NAME}`, { params });
             if(status >= 400) throw new Error(`Error with getting studios. Error status is ${status}.`);
             return data;
         } catch (error) {
@@ -38,7 +50,11 @@ export const createStudio = createAsyncThunk(
     `${STUDIOS_SLICE_NAME}/createStudio`,
     async (studio, { rejectWithValue }) => {
         try {
-            const { status, data } = await api.post(`${STUDIOS_SLICE_NAME}/`, studio);
+            const { status, data } = await api.post(`${STUDIOS_SLICE_NAME}`, studio, {
+                headers: {
+                  'Content-Type': 'multipart/form-data',
+                },
+            });
             if (status >= 400) throw new Error(`Error with creating studio. Error status is ${status}.`)
             return data;
         } catch (error) {
@@ -47,11 +63,15 @@ export const createStudio = createAsyncThunk(
     }
 )
 
-export const editStudio = createAsyncThunk(
-    `${STUDIOS_SLICE_NAME}/editStudio`,
+export const updateStudio = createAsyncThunk(
+    `${STUDIOS_SLICE_NAME}/updateStudio`,
     async (studio, { rejectWithValue }) => {
         try {
-            const { status, data } = await api.put(`${STUDIOS_SLICE_NAME}/${studio.id}`, studio);
+            const { status, data } = await api.put(`${STUDIOS_SLICE_NAME}`, studio, {
+                headers: {
+                  'Content-Type': 'multipart/form-data',
+                },
+            });
             if (status >= 400) throw new Error(`Error with editing studio. Error status is ${status}.`)
             return data;
         } catch (error) {
@@ -91,13 +111,14 @@ const studiosSlice = createSlice({
     initialState,
     extraReducers: (builder) => {
         builder
-            .addCase(getStudios.fulfilled, (state, { payload }) => {
-                state.studios = payload;
+            .addCase(getAllStudios.fulfilled, (state, { payload }) => {
+                state.studios = payload.studios;
                 state.status = 'fulfilled';
+                state.total = payload.total;
                 state.error = null;
             })
             .addCase(getStudioById.fulfilled, (state, { payload }) => {
-                state.studios = payload;
+                state.studios = [payload];
                 state.status = 'fulfilled';
                 state.error = null;
             })
@@ -106,7 +127,7 @@ const studiosSlice = createSlice({
                 state.status = 'fulfilled';
                 state.error = null;
             })
-            .addCase(editStudio.fulfilled, (state, { payload }) => {
+            .addCase(updateStudio.fulfilled, (state, { payload }) => {
                 state.studios = state.studios.map((studio) =>
                 studio.id === payload.id ? payload : studio);
                 state.status = 'fulfilled';
@@ -122,16 +143,16 @@ const studiosSlice = createSlice({
                 state.status = 'fulfilled';
                 state.error = null;
             })
-            .addCase(getStudios.pending, setPending)
+            .addCase(getAllStudios.pending, setPending)
             .addCase(getStudioById.pending, setPending)
             .addCase(createStudio.pending, setPending)
-            .addCase(editStudio.pending, setPending)
+            .addCase(updateStudio.pending, setPending)
             .addCase(deleteStudio.pending, setPending)
             .addCase(selectStudios.pending, setPending)
-            .addCase(getStudios.rejected, setRejected)
+            .addCase(getAllStudios.rejected, setRejected)
             .addCase(getStudioById.rejected, setRejected)
             .addCase(createStudio.rejected, setRejected)
-            .addCase(editStudio.rejected, setRejected)
+            .addCase(updateStudio.rejected, setRejected)
             .addCase(deleteStudio.rejected, setRejected)
             .addCase(selectStudios.rejected, setRejected)
     }

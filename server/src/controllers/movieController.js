@@ -162,12 +162,13 @@ class MovieController {
                 await t.rollback();
                 return next(createError(404, 'Studio not found'));
             }
-    
+            const genre_id = genreInstance.id;
+            const studio_id = studioInstance.id;
             const newMovie = await Movie.create({ 
                 title, 
                 release_year, 
-                genre_id: genreInstance.id, 
-                studio_id: studioInstance.id, 
+                genre_id, 
+                studio_id, 
                 poster 
             }, {
                 transaction: t,
@@ -207,7 +208,11 @@ class MovieController {
         const t = await sequelize.transaction();
         try {
             const { id, title, release_year, genre, studio, actors, directors } = req.body;
-            const poster = req.file ? req.file.filename : null;
+            const existingMovie = await Movie.findByPk(id, { transaction: t, raw: true});
+            if (!existingMovie) {
+                return next(createError(404, 'Movie not found!'));
+            };
+            const poster = req.file ? req.file.filename : existingMovie.poster;
     
             const genreInstance = await Genre.findOne({
                 where: { title: genre },

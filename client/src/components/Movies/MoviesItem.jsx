@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, Link } from 'react-router-dom';
-import { Box, Typography, Avatar, List, ListItem, ListItemAvatar, ListItemText, CircularProgress } from '@mui/material';
-import { getMovieById } from '../../store/slices/moviesSlice';
+import { Box, Typography, Avatar, List, ListItem, ListItemAvatar, ListItemText, CircularProgress, Button } from '@mui/material';
+import { deleteMovie, getMovieById } from '../../store/slices/moviesSlice';
 import { pathToImages } from '../../constants';
 
 function MoviesItem() {
@@ -23,7 +23,10 @@ function MoviesItem() {
       </Box>
     );
   }
-
+  
+  const handleDelete = (id) => {
+    dispatch(deleteMovie(id));
+  }
   
   return (
     <Box sx={{ maxWidth: '1000px', margin: '0 auto', mt: 4, p: 2 }}>
@@ -37,7 +40,7 @@ function MoviesItem() {
           alt={movie.title}
           sx={{ width: 200, height: 300, mr: 4 }}
         />
-        <Box>
+        <Box sx={{ flexGrow: 1 }}>
           <Typography variant="body1" sx={{ mb: 1 }}>
             <strong>Release Year:</strong> {new Date(movie.release_year).getFullYear()}
           </Typography>
@@ -53,56 +56,78 @@ function MoviesItem() {
               {movie.studio}
             </Link>
           </Typography>
-          <Typography variant="h6" sx={{ mb: 1 }}>
-            {movie.directors && movie.directors.length > 1 ? 'Directors' : 'Director'}
-          </Typography>
-          <List>
-            {movie.directors && movie.directors.map((director) => (
-              <ListItem 
-                key={director.id} 
-                sx={{ pl: 0, cursor: 'pointer' }}
-                component={Link}
-                to={`/directors/${director.id}`}
-                style={{ textDecoration: 'none' }}
-              >
-                <ListItemAvatar>
-                  <Avatar
-                    src={director.photo ? `${pathToImages}/directors/${director.photo}` : `${pathToImages}/directors/default.png`}
-                    alt={`${director.first_name} ${director.second_name}`}
-                  />
-                </ListItemAvatar>
-                <ListItemText
-                  primary={`${director.first_name} ${director.second_name}`}
-                  secondary={`Birth Date: ${new Date(director.birth_date).toLocaleDateString()}`}
-                />
-              </ListItem>
-            ))}
-          </List>
-          <Typography variant="h6" sx={{ mb: 1 }}>
-            {movie.actors && movie.actors.length > 1 ? 'Actors' : 'Actor'}
-          </Typography>
-          <List>
-            {movie.actors && movie.actors.map((actor) => (
-              <ListItem 
-                key={actor.id} 
-                sx={{ pl: 0, cursor: 'pointer' }}
-                component={Link}
-                to={`/actors/${actor.id}`}
-                style={{ textDecoration: 'none' }}
-              >
-                <ListItemAvatar>
-                  <Avatar
-                    src={actor.photo ? `${pathToImages}/actors/${actor.photo}` : `${pathToImages}/actors/default.png`}
-                    alt={`${actor.first_name} ${actor.second_name}`}
-                  />
-                </ListItemAvatar>
-                <ListItemText
-                  primary={`${actor.first_name} ${actor.second_name}`}
-                  secondary={`Birth Date: ${new Date(actor.birth_date).toLocaleDateString()}`}
-                />
-              </ListItem>
-            ))}
-          </List>
+          
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
+            <Box sx={{ flex: 1, mr: 2 }}>
+              <Typography variant="h6" sx={{ mb: 1 }}>
+                {movie.directors && movie.directors.length > 1 ? 'Directors' : 'Director'}
+              </Typography>
+              <List>
+                {movie.directors && movie.directors.map((director) => (
+                  <ListItem 
+                    key={director.id} 
+                    sx={{ pl: 0, cursor: 'pointer' }}
+                    component={Link}
+                    to={`/directors/${director.id}`}
+                    style={{ textDecoration: 'none' }}
+                  >
+                    <ListItemAvatar>
+                      <Avatar
+                        src={director.photo ? `${pathToImages}/directors/${director.photo}` : `${pathToImages}/directors/default.png`}
+                        alt={`${director.first_name} ${director.second_name}`}
+                      />
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary={`${director.first_name} ${director.second_name}`}
+                      secondary={`Birth Date: ${new Date(director.birth_date).toLocaleDateString()}`}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </Box>
+            <Box sx={{ flex: 1, ml: 2 }}>
+              <Typography variant="h6" sx={{ mb: 1 }}>
+                {movie.actors && movie.actors.length > 1 ? 'Actors' : 'Actor'}
+              </Typography>
+              <List>
+                {movie.actors && movie.actors.map((actor) => (
+                  <ListItem 
+                    key={actor.id} 
+                    sx={{ pl: 0, cursor: 'pointer' }}
+                    component={Link}
+                    to={`/actors/${actor.id}`}
+                    style={{ textDecoration: 'none' }}
+                  >
+                    <ListItemAvatar>
+                      <Avatar
+                        src={actor.photo ? `${pathToImages}/actors/${actor.photo}` : `${pathToImages}/actors/default.png`}
+                        alt={`${actor.first_name} ${actor.second_name}`}
+                      />
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary={`${actor.first_name} ${actor.second_name}`}
+                      secondary={`Birth Date: ${new Date(actor.birth_date).toLocaleDateString()}`}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </Box>
+          </Box>
+          
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-end', height: '100%' }}>
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{ mr: 2 }}
+              component={Link}
+              to={`/movies/edit/${id}`}
+            >
+              Edit
+            </Button>
+            <Button variant="contained" color="secondary" onClick={handleDelete}>
+              Delete
+            </Button>
+          </Box> 
         </Box>
       </Box>
     </Box>

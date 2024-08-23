@@ -14,11 +14,15 @@ export const getAllMovies = createAsyncThunk(
     async ({ search, filter, page = 1, itemsPerPage = 10 }, { rejectWithValue }) => {
         try {
             const params = {
-                search,
-                filter,
                 page,
-                itemsPerPage
+                result: itemsPerPage,
             };
+            if (search) {
+                params.search = search;
+            }
+            if (filter) {
+                params.filter = filter;
+            }
             const { status, data } = await api.get(`${MOVIES_SLICE_NAME}/`, { params });
             if (status >= 400) throw new Error(`Error with getting movies. Error status is ${status}.`);
             return data;
@@ -45,9 +49,12 @@ export const createMovie = createAsyncThunk(
     `${MOVIES_SLICE_NAME}/createMovie`,
     async (movie, { rejectWithValue }) => {
         try {
-            const { status, data } = await api.post(`${MOVIES_SLICE_NAME}/`, movie);
+            const { status, data } = await api.post(`${MOVIES_SLICE_NAME}/`, movie, {
+                headers: {
+                  'Content-Type': 'multipart/form-data',
+                },
+            });
             if (status >= 400) throw new Error(`Error with creating movie. Error status is ${status}.`);
-            console.log(data)
             return data;
         } catch (error) {
             return rejectWithValue(error.message);
@@ -59,7 +66,11 @@ export const updateMovie = createAsyncThunk(
     `${MOVIES_SLICE_NAME}/updateMovie`,
     async (movie, { rejectWithValue }) => {
         try {
-            const { status, data } = await api.put(`${MOVIES_SLICE_NAME}`, movie);
+            const { status, data } = await api.put(`${MOVIES_SLICE_NAME}`, movie, {
+                headers: {
+                  'Content-Type': 'multipart/form-data',
+                },
+            });
             if (status >= 400) throw new Error(`Error with editing movie. Error status is ${status}.`);
             return data;
         } catch (error) {

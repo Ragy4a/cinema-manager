@@ -20,6 +20,7 @@ router
 
 router
     .route('/:id')
+        .get(studioController.getStudioById)
         .delete(studioController.deleteStudio);
 
 module.exports = router;

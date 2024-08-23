@@ -20,7 +20,7 @@ const StyledList = styled(List)({
 });
 
 const StyledListItem = styled(ListItem)({
-  padding: '10px 20px',
+  padding: '10px',
   borderBottom: '1px solid #ddd',
   '&:last-child': {
     borderBottom: 'none',
@@ -116,7 +116,7 @@ function ActorsList() {
   const count = Math.ceil(total / itemsPerPage);
 
   return (
-    <Box mt={8} sx={{ maxWidth: '1000px', margin: '2dvh auto 0', display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <Box mt={8} sx={{ maxWidth: '1000px', margin: '3dvh auto 0', display: 'flex', flexDirection: 'column', height: '90%' }}>
       <Box display="flex" justifyContent="space-between" mb={2}>
         <TextField
           label="Search Actors"

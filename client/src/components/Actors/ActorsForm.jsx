@@ -110,9 +110,6 @@ const ActorForm = () => {
     formData.append('birth_date', values.birth_date ? values.birth_date.toISOString() : '');
     formData.append('country', values.country);
     formData.append('birth_place', values.birth_place);
-    for (const [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`);
-    }
     if (values.death_date) {
       formData.append('death_date', values.death_date.toISOString());
     }
@@ -122,6 +119,10 @@ const ActorForm = () => {
     selectedMovies.forEach(movie => formData.append('movies[]', movie));
     if (photoFile) {
       formData.append('photo', photoFile);
+    }
+    console.log(photoFile)
+    for (const [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`);
     }
     if (id) {
       dispatch(updateActor(formData));
@@ -136,6 +137,7 @@ const ActorForm = () => {
       initialValues={actor ? {
         ...actor,
         birth_date: actor.birth_date ? new Date(actor.birth_date) : null,
+        death_date: actor.death_date ? new Date(actor.death_date) : null,
         country: actor.birthActorLocation?.Country?.title || '',
         birth_place: actor.birthActorLocation?.title || '',
         death_place: actor.deathActorLocation?.title || '',

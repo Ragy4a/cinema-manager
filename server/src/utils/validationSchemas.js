@@ -1,7 +1,7 @@
 const yup = require('yup');
 
 const TITLE_CHECK = yup.string().required('The title is required');
-const nullableString = yup.string().nullable().notRequired();
+const nullableString = yup.object();
 const ID_CHECK = yup.number().integer('Id must be integer').positive('Id must be positive').required('Id is required')
 
 

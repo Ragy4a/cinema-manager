@@ -115,7 +115,9 @@ const MoviesForm = () => {
 
   const handleSubmit = (values) => {
     const formData = new FormData();
-    formData.append('id', id);
+    if (id) {
+      formData.append('id', id);
+    }
     formData.append('title', values.title);
     formData.append('release_year', values.release_year ? values.release_year.toISOString() : '');
     const selectedCountry = countries.find(country => country.id === values.country);
@@ -124,15 +126,14 @@ const MoviesForm = () => {
     formData.append('genre', selectedGenre ? selectedGenre.title : '');
     const selectedStudio = studios.find(studio => studio.title === values.studio);
     formData.append('studio', selectedStudio ? selectedStudio.title : '');
-    for (const [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
-    }
     selectedActors.forEach(actorId => formData.append('actors[]', actorId));
     selectedDirectors.forEach(directorId => formData.append('directors[]', directorId));
     if (posterFile) {
         formData.append('poster', posterFile);
     }
-
+    for (const [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`);
+    }
     if (id) {
         dispatch(updateMovie(formData));
     } else {
@@ -140,7 +141,6 @@ const MoviesForm = () => {
     }
     navigate('/movies');
   };
-
   return (
     <Formik
       initialValues={movie ? {

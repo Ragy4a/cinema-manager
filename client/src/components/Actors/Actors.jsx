@@ -9,6 +9,7 @@ import ActorsList from "./ActorsList";
 import { getAllActors } from "../../store/slices/actorsSlice";
 
 function Actors() {
+  
   const dispatch = useDispatch();
 
   useEffect(() => {

@@ -47,7 +47,7 @@ export const getActorById = createAsyncThunk(
 );
 
 export const createActor = createAsyncThunk(
-    'actors/createActor',
+    `${ACTORS_SLICE_NAME}/createActor`,
     async (formData, { rejectWithValue }) => {
       try {
         const { status, data } = await api.post(`${ACTORS_SLICE_NAME}`, formData, {
@@ -64,7 +64,7 @@ export const createActor = createAsyncThunk(
   );
   
   export const updateActor = createAsyncThunk(
-    'actors/updateActor',
+    `${ACTORS_SLICE_NAME}/updateActor`,
     async (formData, { rejectWithValue }) => {
       try {
         for (let pair of formData.entries()) {
